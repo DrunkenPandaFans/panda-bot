@@ -3,3 +3,15 @@ target/
 .project
 .classpath
 .cache
+*.class
+*.log
+
+# sbt specific
+dist/*
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
