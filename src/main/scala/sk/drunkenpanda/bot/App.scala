@@ -1,25 +1,30 @@
 package sk.drunkenpanda.bot
 
-import sk.drunkenpanda.bot.action._
+import java.net.Socket
+import scala.util.control.Breaks._
 
 object App {
 
-  val bot = new SocketIrcClient()
+  val bot = new NetworkIrcClient()
 
-  def test(): Action[String] = for {
-    opened <- bot.open("panda-bot", "Drunken Panda Bot")
-    joined <- if (opened) for {
-        _ <- bot.join("#drunken-panda")
-      } yield true
-      else pure(false)
-
-  }
-     
-  def program(): ConnectionProvider => Unit = 
-    cp => cp(test)
-  :w
   def main(args: Array[String]): Unit = {
-    val p = program
-    p(ConnectionProvider.freenode)
+    val socket = new Socket("irc.freenode.net", 6667)
+    val connectionSource = new SocketConnectionSource(socket)
+    bot.open("Panda Bot", "panda-bot")(connectionSource)
+    bot.join("#drunken-panda")(connectionSource)
+    breakable {
+      while (true) {
+        val msg = bot.receive()(connectionSource)
+        print(msg)
+        if (msg == "Get the f*ck out!") {
+          bot.send("#drunken-panda", "Okey, Okey!")(connectionSource)
+          bot.leave("#drunken-panda")(connectionSource)
+          break
+        } else {
+          bot.send("#drunken-panda", "Echoing..." + msg)(connectionSource)
+        }
+      }
+    }
+    socket.close()
   }
 }
