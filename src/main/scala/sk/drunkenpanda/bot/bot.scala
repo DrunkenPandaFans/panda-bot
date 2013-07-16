@@ -1,98 +1,68 @@
 package sk.drunkenpanda.bot
 
-import java.io.IOException
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.Writer
-import java.io.OutputStreamWriter
-import java.io.PrintWriter
 import java.net.Socket
+import java.io._
 
-import sk.drunkenpanda.bot.action._
+trait IrcClient[S <: ConnectionSource] {
+  def join(channel: String): S => Unit
 
-trait IrcClient {
+  def open(realname: String, username: String): S => Unit
 
-  def join(channel: String): Action[Boolean]
+  def send(to: String, msg: String): S => Unit
 
-  def open(nickname: String, realname: String): Action[Boolean]
+  def receive(): S => String
 
-  def leave(channel: String): Action[Boolean]
-
-  def send(to: String, msg: String): Action[Boolean]
-
-  def retrieve(): Action[String]
+  def leave(channel: String): S => Unit
+  
 }
 
-class SocketIrcClient extends Reader with IrcClient {
+class NetworkIrcClient extends IrcClient[SocketConnectionSource] {
 
-  private def write[A](s: Socket)(f: Writer => A): Option[A] = {
-    val osw = new OutputStreamWriter(s.getOutputStream())
-    val printWriter = new PrintWriter(osw)
+  def join(channel: String) = 
+    s => s.write(w => w.write("JOIN " + channel))
 
+  def open(realname: String, username: String) =
+    s => s.write(w => {
+      w.write("NICK " + username)
+      w.write("USER " + username + " 0 * :" + realname)})
+
+  def send(to: String, msg: String) = 
+    s => s.write(w => w.write("PRIVMSG " + to + " " + msg))
+
+  def receive() = s => s.read(r => r.readLine())
+
+  def leave(channel: String) =  s => s.write(w => w.write("PART " + channel))
+}
+
+trait ConnectionSource {
+
+  def write[A](f: Writer => A): A
+
+  def read[A](f: BufferedReader => A): A
+}
+
+class SocketConnectionSource(socket: Socket) extends ConnectionSource {
+
+  def write[A](f: Writer => A): A = {
+    val osw = new OutputStreamWriter(socket.getOutputStream)
+    val pw = new PrintWriter(osw)
     try {
-      Some(f(printWriter))
-    } catch {
-      case e: IOException => None
+      f(pw) 
     } finally {
-      if (printWriter != null) printWriter.close()
-      if (osw != null) osw.close()
+      // if (pw != null) pw.close()
+      //if (osw != null) osw.close()
     }
   }
 
-  private def read[A](s: Socket)(f: BufferedReader => A): Option[A] = {
-    val isr = new InputStreamReader(s.getInputStream())
+  def read[A](f: BufferedReader => A): A = {
+    val isr = new InputStreamReader(socket.getInputStream)
     val br = new BufferedReader(isr)
-
     try {
-      Some(f(br))
-    } catch {
-      case e: IOException => None        
+      f(br)
     } finally {
-      if (br != null) br.close()
-      if (isr != null) isr.close()
+      //if (br != null) br.close()
+      //if (isr != null) isr.close()
     }
   }
 
-  def join(channel: String): Action[Boolean] = new Action({ s =>
-    val res = write(s) { w => 
-      w.write("JOIN " + channel) 
-      true 
-    }
-    res getOrElse false
-  })
-
-  def open(nickname: String, realname: String): Action[Boolean] = new Action({ s =>
-    val res = write(s) { w =>
-      w.write("NICK " + nickname)
-      w.write("USERNAME " + nickname + " 0 * :" + realname)
-      true
-    } 
-    res getOrElse false
-  })
-
-  def leave(channel: String): Action[Boolean] = new Action({ s =>
-    val res = write(s) { w =>
-      w.write("PART " + channel)
-      true
-    }
-    res getOrElse false
-  })
-
-  def send(to: String, msg: String): Action[Boolean] = new Action({ s => 
-    val res = write(s) { w =>
-      w.write("PRIVMSG " + to + " " + msg)
-      true
-    }
-
-    res getOrElse false
-  })
-
-  def retrieve(): Action[String] = new Action({ s =>
-    val res = read(s) { r =>
-      r.readLine()
-    }
-
-    res getOrElse ""
-  })
-  
 }
