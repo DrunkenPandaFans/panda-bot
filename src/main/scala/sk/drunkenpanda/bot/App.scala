@@ -10,13 +10,16 @@ object App {
   def main(args: Array[String]): Unit = {
     val socket = new Socket("irc.freenode.net", 6667)
     val connectionSource = new SocketConnectionSource(socket)
+    println("Socket opened")
     bot.open("Panda Bot", "panda-bot")(connectionSource)
+    println("Registration sended")
     bot.join("#drunken-panda")(connectionSource)
+    println("Channel joined")
     breakable {
       while (true) {
         val msg = bot.receive()(connectionSource)
-        print(msg)
-        if (msg == "Get the f*ck out!") {
+        if (msg == null) break else  println(msg)
+        if (msg contains "Get the f*ck out!") {
           bot.send("#drunken-panda", "Okey, Okey!")(connectionSource)
           bot.leave("#drunken-panda")(connectionSource)
           break

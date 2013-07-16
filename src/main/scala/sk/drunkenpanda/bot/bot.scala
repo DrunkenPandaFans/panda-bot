@@ -23,11 +23,11 @@ class NetworkIrcClient extends IrcClient[SocketConnectionSource] {
 
   def open(realname: String, username: String) =
     s => s.write(w => {
-      w.write("NICK " + username)
+      w.write("NICK " + username + "\n")
       w.write("USER " + username + " 0 * :" + realname)})
 
   def send(to: String, msg: String) = 
-    s => s.write(w => w.write("PRIVMSG " + to + " " + msg))
+    s => s.write(w => w.write("PRIVMSG " + to + " :" + msg))
 
   def receive() = s => s.read(r => r.readLine())
 
@@ -47,7 +47,10 @@ class SocketConnectionSource(socket: Socket) extends ConnectionSource {
     val osw = new OutputStreamWriter(socket.getOutputStream)
     val pw = new PrintWriter(osw)
     try {
-      f(pw) 
+      val result = f(pw)
+      pw.write("\n")
+      pw.flush()
+      result
     } finally {
       // if (pw != null) pw.close()
       //if (osw != null) osw.close()
