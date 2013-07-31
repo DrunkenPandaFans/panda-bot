@@ -6,7 +6,7 @@ case class Connect(channels: Seq[String], nick: String, real: String)
 case class Message(msg: String)
 case class Quit(channel: String)
 
-class ChannelActor(source: ConnectionSource[Socket]) extends Actor {
+/**class ChannelActor(source: ConnectionSource[Socket]) extends Actor {
   
   val client = new NetworkIrcClient
 
@@ -32,4 +32,4 @@ class ChannelActor(source: ConnectionSource[Socket]) extends Actor {
     }
     msg
   }
-}
+}*/
