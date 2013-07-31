@@ -8,3 +8,5 @@ resolvers ++= Seq(
   "typesafe" at "http://repo.typesafe.com/typesafe/releases/",
   "sbt-plugin-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"
 )
+
+libraryDependencies += "com.typesafe.akka" % "akka-actor" % "2.0"
