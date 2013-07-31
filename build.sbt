@@ -2,7 +2,7 @@ name := "PandaBot"
 
 version := "1.0"
 
-scalaVersion := "2.9.2"
+scalaVersion := "2.10.2"
 
 resolvers ++= Seq(
   "typesafe" at "http://repo.typesafe.com/typesafe/releases/",
