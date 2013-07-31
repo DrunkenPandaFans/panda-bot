@@ -6,11 +6,7 @@ case class PrivateMessage(to: String, text: String) extends Message
 case class Ping(hash: String) extends Message
 case class Notice(note: String) extends Message
 
-trait MessageParser {
-  def parse(message: String): Message
-}
-
-class SimpleMessageParser extends MessageParser {
+object Message {
 
   lazy val privateMessagePattern = "PRIVMSG (\\S+) :(.+)".r
 
