@@ -10,27 +10,27 @@ class Bot(hostname: String, port: Int) {
 
   val client = new NetworkIrcClient()
 
-  val plugins = List(new EchoPlugin())
+  val plugins = List(new EchoPlugin(), new PongPlugin())
 
-  def connect(nickname: String, realname: String, channel: String): Unit = {
+  def connect(nickname: String, realname: String, channel: String) = {
     client.open(realname, nickname)(socket)
     client.join(channel)(socket)
 
     val messageStream = listen()
     val results = for {
-      msg <- messageStream
+      msg <- messageStream      
       result <- process(msg) 
     } yield result
     
-    results.foreach (r => client.send(channel, r)(socket))
+    results.foreach (r => client.send(r)(socket))
   }
 
-  def process(message: String) = for {
+  def process(message: Message) = for {    
     p <- plugins
     r <- p respond message
   } yield r
 
-  def listen(): Stream[String] = 
+  def listen(): Stream[Message] = 
     client.receive()(socket) #:: listen()
 
 }
