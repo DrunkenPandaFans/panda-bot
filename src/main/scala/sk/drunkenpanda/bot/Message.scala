@@ -14,7 +14,7 @@ object Message {
 
   lazy val noticePattern = "NOTICE (.+)".r
 
-  override def parse(message: String) = message match {
+  def parse(message: String) = message match {
     case privateMessagePattern(from, text) => new PrivateMessage(from, text)
     case pingPattern(hash) => Ping(hash)
     case noticePattern(note) => new Notice(note)
