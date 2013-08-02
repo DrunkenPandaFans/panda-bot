@@ -1,36 +1,30 @@
 package sk.drunkenpanda.bot
 
-import sk.drunkenpanda.bot.plugins._
 import java.net.Socket
+import sk.drunkenpanda.bot.io._
+import sk.drunkenpanda.bot.plugins._
 
-class Bot(hostname: String, port: Int) {
-
-  lazy val socket = 
-    new SocketConnectionSource(new Socket(hostname, port))
-
-  val client = new NetworkIrcClient()
+class Bot(client: IrcClient) {
 
   val plugins = List(new EchoPlugin(), new PongPlugin())
 
-  def connect(nickname: String, realname: String, channel: String) = {
-    client.open(realname, nickname)(socket)
-    client.join(channel)(socket)
+  def connect(nickname: String, realname: String, channel: String) = 
+    for {
+     _ <- client.open(realname, nickname)
+     _ <- client.join(channel)
+  } yield ()
+   
+  def process(message: Message): List[Message] = 
+    for {    
+      p <- plugins
+      r <- p respond message
+    } yield r
 
-    val messageStream = listen()
-    val results = for {
-      msg <- messageStream      
-      result <- process(msg) 
-    } yield result
-    
-    results.foreach (r => client.send(r)(socket))
-  }
-
-  def process(message: Message) = for {    
-    p <- plugins
-    r <- p respond message
-  } yield r
-
-  def listen(): Stream[Message] = 
-    client.receive()(socket) #:: listen()
-
+//  def listen(): Action[ConnectionSource, Unit] = 
+//    for {
+//      message <- client.receive
+//      respond <- process(message)
+//      _ <- client.send(respond)
+//    } yield ()
+   
 }
