@@ -10,5 +10,5 @@ class Action[S, A](g: S => A) {
 }
 
 object Action {
-  implicit def pure[S, A](f: S => A): Action[S, A] = new Action(f)
+  def pure[S, A](a: A) = new Action[S, A]({s => a})
 }
