@@ -1,3 +1,5 @@
+import com.typesafe.sbt.SbtStartScript
+
 name := "PandaBot"
 
 version := "1.0"
@@ -10,3 +12,5 @@ resolvers ++= Seq(
 )
 
 libraryDependencies += "com.typesafe.akka" % "akka-actor" % "2.0"
+
+seq(SbtStartScript.startScriptForClassesSettings: _*)
