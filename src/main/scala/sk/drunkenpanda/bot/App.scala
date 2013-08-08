@@ -9,17 +9,15 @@ object App {
 
   val bot = new Bot(new NetworkIrcClient())
 
-  def run(source: ConnectionSource) =
-  { 
-    for {
-      _ <- Action.pure(println("Connecting to channel"))
-      _ <- bot.connect("drunken-panda", "Drunken Panda Bot", "#drunken-panda")      
-      messages <- bot.listen()
-      _ <- Action.pure(println(messages))
-      process <- bot.processAction(messages)
-      _ <- bot.send(process.toList)
-    } yield ()  
+  def run(source: ConnectionSource) = {
+    bot.connect("PandaBot", "Drunken Panda Bot", "#drunken-panda")(source)
+
+    val messageStream = bot.listen()(source)
+    val responds = messageStream map { msg => bot.process(msg) }
+    responds foreach { r => bot.send(r)(source) }
   }
+   
+   
 
   def main(args: Array[String]): Unit = run(source) 
   

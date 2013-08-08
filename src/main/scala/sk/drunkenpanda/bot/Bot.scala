@@ -8,11 +8,12 @@ class Bot(client: IrcClient) {
 
   val plugins = List(new EchoPlugin(), new PongPlugin())
 
-  def connect(nickname: String, realname: String, channel: String): Action[ConnectionSource, Unit] = 
-    for {
-     _ <- client.open(realname, nickname)     
-     _ <- client.join(channel)
-  } yield ()
+  def connect(nickname: String, realname: String, channel: String)
+    : ConnectionSource => Unit =
+        s => {
+          client.open(realname, nickname)(s)
+          client.join(channel)(s)
+        }
    
   def process(message: Message): List[Message] = 
     for {    
@@ -20,16 +21,17 @@ class Bot(client: IrcClient) {
       r <- p respond message
     } yield r
     
-  def send(messages: List[Message]): Action[ConnectionSource, Unit] = 
-    new Action(source => messages map {message => client.send(message)})
+  def send(messages: List[Message]): ConnectionSource => Unit =
+    s => messages map {message => client.send(message)(s)}
 
-  def listen(): Action[ConnectionSource, Stream[Message]] = 
-    new Action(source => read(source))
+  def listen(): ConnectionSource => Stream[Message] = 
+    s => read(s)
   
-  def processAction(messages: Stream[Message]): Action[ConnectionSource, Stream[Message]] = 
-    new Action(source => messages flatMap process)
-   
+  def processStream(messages: Stream[Message])
+      : ConnectionSource => Stream[List[Message]] = 
+    s => messages map {msg => process(msg)}
+
   private def read(source: ConnectionSource): Stream[Message] = 
     client.receive()(source) #:: read(source)
-   
+      
 }
