@@ -1,5 +1,7 @@
 import com.typesafe.sbt.SbtStartScript
 
+seq(SbtStartScript.startScriptForClassesSettings: _*)
+
 name := "PandaBot"
 
 version := "1.0"
@@ -11,6 +13,7 @@ resolvers ++= Seq(
   "sbt-plugin-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"
 )
 
-libraryDependencies += "com.typesafe.akka" % "akka-actor" % "2.0"
+libraryDependencies ++= Seq("com.typesafe.akka" % "akka-actor" % "2.0",
+                            "com.twitter" %% "finagle-core" % "6.5.2",
+                            "com.twitter" %% "finagle-http" % "6.5.2")
 
-seq(SbtStartScript.startScriptForClassesSettings: _*)
