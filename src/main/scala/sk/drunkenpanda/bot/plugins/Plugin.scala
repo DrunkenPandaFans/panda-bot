@@ -22,7 +22,7 @@ class EchoPlugin extends Plugin {
 class PongPlugin extends Plugin {
 
   override def respond(message: Message) = message match {
-    case ping: Ping => Option(ping)
+    case Ping(hash) => Option(new Pong(hash))
     case _ => None
   }
 }

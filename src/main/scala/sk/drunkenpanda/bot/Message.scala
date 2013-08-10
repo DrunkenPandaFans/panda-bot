@@ -4,6 +4,7 @@ sealed trait Message
 case object Unknown extends Message
 case class PrivateMessage(to: String, text: String) extends Message
 case class Ping(hash: String) extends Message
+case class Pong(hash: String) extends Message
 case class Notice(note: String) extends Message
 
 object Message {
@@ -23,7 +24,7 @@ object Message {
  
   def print(message: Message) = message match {
     case PrivateMessage(to, text) => "PRIVMSG " + to + " :" + text
-    case Ping(hash) => "PONG :" + hash
+    case Pong(hash) => "PONG :" + hash
   	case Notice(note) => "NOTICE " + note
   	case _ => ""
   }
