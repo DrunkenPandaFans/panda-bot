@@ -11,9 +11,5 @@ trait PluginModule {
 abstract class AbstractPluginModule extends PluginModule {
 
   def process(message: Message): Set[Message] =  
-    for {
-      p <- plugins
-      respond <- p.respond(message)
-    } yield respond
-  
+    plugins flatMap (_.respond(message))  
 }
