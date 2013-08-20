@@ -1,9 +1,9 @@
 package sk.drunkenpanda.bot.plugins
 
 import sk.drunkenpanda.bot.Message
-import sk.drunkenpanda.bot.PrivateMessage
 import sk.drunkenpanda.bot.Ping
 import sk.drunkenpanda.bot.PrivateMessage
+import sk.drunkenpanda.bot.Pong
 
 
 trait Plugin {
