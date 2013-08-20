@@ -11,6 +11,9 @@ import org.jboss.netty.handler.codec.http.{HttpRequest, HttpResponse}
 import util.Properties
 
 import sk.drunkenpanda.bot.io._
+import sk.drunkenpanda.bot.plugins.AbstractPluginModule
+import sk.drunkenpanda.bot.plugins.EchoPlugin
+import sk.drunkenpanda.bot.plugins.PongPlugin
 
 object App {
 
@@ -22,8 +25,8 @@ object App {
     bot.connect("PandaBot", "Drunken Panda Bot", "#drunken-panda")(source)
 
     val messageStream = bot.listen()(source)
-    val responds = messageStream map { msg => bot.process(msg) }
-    responds foreach { r => bot.send(r)(source) }
+    val responds = messageStream map { msg => SimplePluginModule.process(msg)}
+    responds foreach { r => bot.send(r)(source)}
   }
    
   def startServer(): Unit = {
@@ -38,19 +41,25 @@ object App {
     println("Started.")
   }
    
-
   def main(args: Array[String]): Unit = {
     startServer
     startBot(source) 
   }
   
-  class InfoService extends Service[HttpRequest, HttpResponse] {
-    def apply(req: HttpRequest): Future[HttpResponse] = {
-      val response = Response()
-      response.setStatusCode(200)
-      response.setContentString("Come drown your sorrows to #drunken-panda@freenode")
-      Future(response)
-    }
+}
 
+object SimplePluginModule extends AbstractPluginModule {
+
+  override val plugins = Set(new PongPlugin(), new EchoPlugin())
+}
+
+class InfoService extends Service[HttpRequest, HttpResponse] {
+ 
+  def apply(req: HttpRequest): Future[HttpResponse] = {
+    val response = Response()
+    response.setStatusCode(200)
+    response.setContentString("Come drown your sorrows to #drunken-panda@freenode")
+    Future(response)
   }
+
 }
