@@ -10,11 +10,10 @@ trait PluginModule {
 
 abstract class AbstractPluginModule extends PluginModule {
 
-  def process(message: Message): Set[Message] = { 
-    println(plugins)
+  def process(message: Message): Set[Message] =  
     for {
       p <- plugins
       respond <- p.respond(message)
     } yield respond
-  }
+  
 }
