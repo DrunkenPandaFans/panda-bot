@@ -1,7 +1,9 @@
 package sk.drunkenpanda.bot
 
 sealed trait Message
+
 case object Unknown extends Message
+
 case class PrivateMessage(to: String, text: String) extends Message
 case class Ping(hash: String) extends Message
 case class Pong(hash: String) extends Message

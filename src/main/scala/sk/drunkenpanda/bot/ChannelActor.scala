@@ -2,30 +2,29 @@ package sk.drunkenpanda.bot
 
 import akka.actor._
 
-/**class ChannelActor(source: ConnectionSource[Socket]) extends Actor {
-  
-  val client = new NetworkIrcClient
+case object Start
+case object Stop
+
+/*class ChannelActor(bot: Bot, source: ConnectionSource[Socket]) extends Actor {    
 
   def receive = {
-    case Connect(channels, nick, real) => {
-      client.open(real, nick)(source)
-      channels map { c => client.join(c)(source) }
-      while (True) {
-        sender ! Message(readMessage)
-      }
-    }
-
-    case Quit(channel) => {
-      client.leave(channel)(source)
-    }
-    
+    case Start => startBot
+    case Stop => shutdownBot
+    case m: Message => sendMessage(m)
+    case _ => //log weird message
   }
 
-  def readMessage: String = {
-    val msg = client.receive()(source)
-    while (msg == null) {
-      msg = client.receive(source)
-    }
-    msg
+  def startBot = {
+    bot.connect("PandaBot", "Drunken Panda Bot", "#drunken-panda")(source)
+    val messageStream = bot.listen()(source)
+    messageStream map { msg => sender ! msg }
   }
-}*/
+
+  def shutdownBot = {
+    bot.leave("#drunken-panda")(source)
+    source.close
+  }
+
+  def sendMessage(m: Message) = bot.send(m)(source)
+
+} */
