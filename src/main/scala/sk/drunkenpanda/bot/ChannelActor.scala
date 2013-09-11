@@ -1,17 +1,21 @@
 package sk.drunkenpanda.bot
 
-import akka.actor._
+import akka.actor.Actor
+import akka.event.Logging
 
-case object Start
-case object Stop
+object ChannelActor {
+  case object Start
+  case object Stop
+}
 
-/*class ChannelActor(bot: Bot, source: ConnectionSource[Socket]) extends Actor {    
+class ChannelActor(bot: Bot, source: ConnectionSource[Socket]) 
+  extends Actor with LoggableActor {    
 
   def receive = {
-    case Start => startBot
-    case Stop => shutdownBot
+    case ChannelActor.Start => startBot
+    case ChannelActor.Stop => shutdownBot
     case m: Message => sendMessage(m)
-    case _ => //log weird message
+    case m: Any => log.info(s"ChannelActor received unrecognized message: #{m}")
   }
 
   def startBot = {
@@ -27,4 +31,4 @@ case object Stop
 
   def sendMessage(m: Message) = bot.send(m)(source)
 
-} */
+}

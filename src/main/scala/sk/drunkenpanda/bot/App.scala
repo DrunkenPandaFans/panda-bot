@@ -1,6 +1,6 @@
 package sk.drunkenpanda.bot
 
-
+import akka.actor.Props
 import com.twitter.finagle.builder.ServerBuilder
 import com.twitter.finagle.http.{Http, Response}
 import com.twitter.finagle.Service
@@ -22,11 +22,8 @@ object App {
   val bot = new Bot(new NetworkIrcClient())
 
   def startBot(source: ConnectionSource) = {
-    bot.connect("PandaBot", "Drunken Panda Bot", "#drunken-panda")(source)
-
-    val messageStream = bot.listen()(source)
-    val responds = messageStream map { msg => SimplePluginModule.process(msg)}
-    responds foreach { r => bot.send(r)(source)}
+    val channelProps = Props(classOf(ChannelActor), bot, source)
+    val processProps = Props(classOf(ProcessingActor), SimplePluginModule)
   }
    
   def startServer(): Unit = {
