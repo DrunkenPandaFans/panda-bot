@@ -22,8 +22,8 @@ object App {
   val bot = new Bot(new NetworkIrcClient())
 
   def startBot(source: ConnectionSource) = {
-    val channelProps = Props(classOf(ChannelActor), bot, source)
-    val processProps = Props(classOf(ProcessingActor), SimplePluginModule)
+    val channelProps = Props(classOf[ChannelActor], bot, source)
+    val processProps = Props(classOf[ProcessingActor], new SimplePluginModule)
   }
    
   def startServer(): Unit = {
@@ -45,7 +45,7 @@ object App {
   
 }
 
-object SimplePluginModule extends AbstractPluginModule {
+class SimplePluginModule extends AbstractPluginModule {
 
   override val plugins = Set(new PongPlugin(), new EchoPlugin())
 }

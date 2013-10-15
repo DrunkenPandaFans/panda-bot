@@ -13,12 +13,15 @@ class Bot(client: IrcClient) {
           client.join(channel)(s)
         }
       
-  def send(messages: Set[Message]): ConnectionSource => Unit =
-    s => messages map {message => client.send(message)(s)}
+  def send(message: Message): ConnectionSource => Unit =
+    s => client.send(message)(s)
 
   def listen(): ConnectionSource => Stream[Message] = 
     s => read(s)
    
+  def leave(channel: String): ConnectionSource => Unit =
+    s => client.leave(channel)(s)
+
   private def read(source: ConnectionSource): Stream[Message] = 
     client.receive()(source) #:: read(source)
       

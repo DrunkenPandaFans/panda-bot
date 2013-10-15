@@ -2,13 +2,14 @@ package sk.drunkenpanda.bot
 
 import akka.actor.Actor
 import akka.event.Logging
+import sk.drunkenpanda.bot.io.ConnectionSource
 
 object ChannelActor {
   case object Start
   case object Stop
 }
 
-class ChannelActor(bot: Bot, source: ConnectionSource[Socket]) 
+class ChannelActor(bot: Bot, source: ConnectionSource) 
   extends Actor with LoggableActor {    
 
   def receive = {
@@ -24,10 +25,7 @@ class ChannelActor(bot: Bot, source: ConnectionSource[Socket])
     messageStream map { msg => sender ! msg }
   }
 
-  def shutdownBot = {
-    bot.leave("#drunken-panda")(source)
-    source.close
-  }
+  def shutdownBot = bot.leave("#drunken-panda")(source)
 
   def sendMessage(m: Message) = bot.send(m)(source)
 
