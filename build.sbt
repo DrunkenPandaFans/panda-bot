@@ -2,6 +2,8 @@ import com.typesafe.sbt.SbtStartScript
 
 seq(SbtStartScript.startScriptForClassesSettings: _*)
 
+seq(com.github.theon.coveralls.CoverallsPlugin.coverallsSettings: _*)
+
 name := "PandaBot"
 
 version := "1.0"
