@@ -19,3 +19,7 @@ project/plugins/project/
 # Ensime 
 .ensime
 .ensime_lucene/
+
+# Idea
+.idea/
+*.iml
