@@ -1,5 +1,6 @@
 package sk.drunkenpanda.bot
 
+import akka.actor.ActorSystem
 import akka.actor.Props
 import java.net.Socket
 import util.Properties
