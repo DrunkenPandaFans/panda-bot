@@ -3,8 +3,6 @@ package sk.drunkenpanda.bot
 import akka.actor.ActorSystem
 import akka.actor.Props
 import java.net.Socket
-import util.Properties
-
 import sk.drunkenpanda.bot.io._
 import sk.drunkenpanda.bot.plugins.AbstractPluginModule
 import sk.drunkenpanda.bot.plugins.EchoPlugin
@@ -22,7 +20,7 @@ object App {
 
     val system = ActorSystem()
     val channelActor = system.actorOf(channelProps)
-    val processActor = system.actorOf(processActor)
+    val processActor = system.actorOf(processProps)
     channelActor ! ChannelActor.Start
   }
   

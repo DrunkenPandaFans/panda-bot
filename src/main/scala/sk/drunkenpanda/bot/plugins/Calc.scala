@@ -16,6 +16,7 @@ class ExpressionEvaluator {
     case BinaryOperator("-", left, right) => evaluate(left) - evaluate(right)
     case BinaryOperator("*", left, right) => evaluate(left) * evaluate(right)
     case BinaryOperator("/", left, right) => evaluate(left) / evaluate(right)
+    case _ => throw new IllegalArgumentException("Expression is not valid")
   }
 }
 
