@@ -1,12 +1,16 @@
 package sk.drunkenpanda.bot
 
 import akka.actor.Actor
+import akka.actor.Props
 import akka.event.Logging
 import sk.drunkenpanda.bot.io.ConnectionSource
 
 object ChannelActor {
   case object Start
   case object Stop
+
+  def props(bot: Bot, source: ConnectionSource) = 
+    Props(classOf[ChannelActor], bot, source)
 }
 
 class ChannelActor(bot: Bot, source: ConnectionSource) 

@@ -16,8 +16,13 @@ object App {
   val bot = new Bot(new NetworkIrcClient())
 
   def startBot(source: ConnectionSource) = {
-    val channelProps = Props(classOf[ChannelActor], bot, source)
-    val processProps = Props(classOf[ProcessingActor], new SimplePluginModule)
+    val channelProps = ChannelActor.props(bot, source)
+    val processProps = ProcessingActor.props(new SimplePluginModule)
+
+    val system = ActorSystem()
+    val channelActor = system.actorOf(channelProps)
+    val processActor = system.actorOf(processActor)
+    channelActor ! ChannelActor.Start
   }
   
   def main(args: Array[String]): Unit = startBot(source)
