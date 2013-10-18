@@ -18,7 +18,10 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-actor" % "2.2.1"
+  "com.typesafe.akka" %% "akka-actor" % "2.2.1",
+  "org.specs2" %% "specs2" % "2.2.3" % "test"
 )
+
+scalacOptions in Test ++= Seq("-Yrangepos")
 
 
