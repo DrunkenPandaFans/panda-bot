@@ -15,7 +15,7 @@ object Message {
 
   lazy val pingPattern = ".*PING :(\\S+)".r
 
-  lazy val noticePattern = ".*NOTICE (.+)".r
+  lazy val noticePattern = ".*NOTICE :(.+)".r
 
   def parse(message: String) = message match {
     case privateMessagePattern(from, text) => new PrivateMessage(from, text)
@@ -27,7 +27,7 @@ object Message {
   def print(message: Message) = message match {
     case PrivateMessage(to, text) => "PRIVMSG " + to + " :" + text
     case Pong(hash) => "PONG :" + hash
-  	case Notice(note) => "NOTICE " + note
+  	case Notice(note) => "NOTICE :" + note
   	case _ => ""
   }
 }
