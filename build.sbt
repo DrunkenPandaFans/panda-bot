@@ -6,6 +6,8 @@ seq(ScctPlugin.instrumentSettings : _*)
 
 seq(com.github.theon.coveralls.CoverallsPlugin.coverallsSettings: _*)
 
+org.scalastyle.sbt.ScalastylePlugin.Settings
+
 name := "PandaBot"
 
 version := "1.0"
