@@ -4,6 +4,7 @@ import sk.drunkenpanda.bot.Message
 import sk.drunkenpanda.bot.Ping
 import sk.drunkenpanda.bot.PrivateMessage
 import sk.drunkenpanda.bot.Pong
+import sk.drunkenpanda.bot.Response
 
 
 trait Plugin {
@@ -22,7 +23,7 @@ class EchoPlugin extends Plugin {
   def prepareResponse(to: String, responseMessage: Option[String]) = 
     for {
       message <- responseMessage
-    } yield new PrivateMessage(to, s"Echoing message...$message")
+    } yield new Response(to, s"Echoing message...$message")
 
   def parseText(text: String) = text match {
     case format(toEcho) => Some(toEcho)
