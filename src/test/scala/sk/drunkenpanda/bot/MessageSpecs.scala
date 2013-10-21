@@ -30,7 +30,7 @@ class MessageSpecs extends Specification {
 
     "print private message" in {
       val expected = "PRIVMSG toMe :This is awesome"
-      val message = new PrivateMessage("toMe", "This is awesome")
+      val message = new Response("toMe", "This is awesome")
       Message.print(message) must beEqualTo(expected)
     }
 
@@ -50,6 +50,7 @@ class MessageSpecs extends Specification {
       val message = new Ping("abcds")
       Message.print(message) must beEqualTo("")
       Message.print(Unknown) must beEqualTo("")
+      Message.print(new PrivateMessage("to", "private message")) must beEqualTo("")
     }
   }
 }
