@@ -4,13 +4,13 @@ import sk.drunkenpanda.bot.plugins.PluginModule
 import akka.actor.Actor
 import akka.actor.Props
 
-object ProcessingActor {
+object MessageProcessor {
 
-  def props(module: PluginModule): Props = Props(classOf[ProcessingActor], module)
+  def props(module: PluginModule): Props = Props(classOf[MessageProcessor], module)
 
 }
 
-class ProcessingActor(pluginRepo: PluginModule) extends Actor with LoggableActor {
+class MessageProcessor(pluginRepo: PluginModule) extends Actor with LoggableActor {
 
   def receive = {
     case m: Message => pluginRepo.process(m).foreach {respond => sender ! respond}
