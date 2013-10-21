@@ -5,6 +5,7 @@ import sk.drunkenpanda.bot.Notice
 import sk.drunkenpanda.bot.Ping
 import sk.drunkenpanda.bot.Pong
 import sk.drunkenpanda.bot.PrivateMessage
+import sk.drunkenpanda.bot.Response
 import sk.drunkenpanda.bot.Unknown
 
 class PongPluginSpecs extends Specification {
@@ -22,6 +23,7 @@ class PongPluginSpecs extends Specification {
       pongPlugin.respond(new Notice("Message")) must beNone
       val privMessage = new PrivateMessage("noone", "This is weird msg")
       pongPlugin.respond(privMessage) must beNone
+      pongPlugin.respond(new Response("noo", "this is strange")) must beNone
       pongPlugin.respond(new Pong("ponging")) must beNone
     }
   }
