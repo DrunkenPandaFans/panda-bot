@@ -1,7 +1,10 @@
-package sk.drunkenpanda.bot
+package sk.drunkenpanda.bot.actor
 
 import akka.actor.Actor
 import akka.actor.Props
+import sk.drunkenpanda.bot.Bot
+import sk.drunkenpanda.bot.Pong
+import sk.drunkenpanda.bot.Response
 import sk.drunkenpanda.bot.io.ConnectionSource
 
 object StreamWriter {

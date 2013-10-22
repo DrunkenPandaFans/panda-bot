@@ -1,4 +1,4 @@
-package sk.drunkenpanda.bot
+package sk.drunkenpanda.bot.actor
 
 import akka.actor.Actor
 import akka.event.Logging

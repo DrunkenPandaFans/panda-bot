@@ -1,8 +1,9 @@
-package sk.drunkenpanda.bot
+package sk.drunkenpanda.bot.actor
 
-import sk.drunkenpanda.bot.plugins.PluginModule
 import akka.actor.Actor
 import akka.actor.Props
+import sk.drunkenpanda.bot.Message
+import sk.drunkenpanda.bot.plugins.PluginModule
 
 object MessageProcessor {
 

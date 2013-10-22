@@ -1,8 +1,9 @@
-package sk.drunkenpanda.bot
+package sk.drunkenpanda.bot.actor
 
 import akka.actor.Actor
 import akka.actor.Props
 import akka.event.Logging
+import sk.drunkenpanda.bot.Bot
 import sk.drunkenpanda.bot.io.ConnectionSource
 
 object StreamReader {
