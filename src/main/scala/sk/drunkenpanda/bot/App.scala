@@ -1,8 +1,8 @@
 package sk.drunkenpanda.bot
 
 import akka.actor.ActorSystem
-import akka.actor.Props
 import java.net.Socket
+import sk.drunkenpanda.bot.actor._
 import sk.drunkenpanda.bot.io._
 import sk.drunkenpanda.bot.plugins.AbstractPluginModule
 import sk.drunkenpanda.bot.plugins.EchoPlugin
@@ -15,20 +15,22 @@ object App {
   val bot = new Bot(new NetworkIrcClient())
 
   def startBot(source: ConnectionSource) = {
-    val channelProps = ChannelActor.props(bot, source)
-    val processProps = ProcessingActor.props(new SimplePluginModule)
-
-    val system = ActorSystem()
-    val channelActor = system.actorOf(channelProps)
-    val processActor = system.actorOf(processProps)
-    channelActor ! ChannelActor.Start
+    val system = ActorSystem("pandabot")
+    val writer = system.actorOf(StreamWriter.props(bot, source))
+    val reader = system.actorOf(StreamReader.props(bot, source))
+    val processor = system.actorOf(MessageProcessor.props(new SimplePluginModule))
+    val masterActor = system.actorOf(
+      MasterActor.props(processor, reader, writer))
+    masterActor ! MasterActor.Start
   }
   
   def main(args: Array[String]): Unit = startBot(source)
-  
+
+ 
+  class SimplePluginModule extends AbstractPluginModule {
+
+    override val plugins = Set(new PongPlugin(), new EchoPlugin())
+  } 
 }
 
-class SimplePluginModule extends AbstractPluginModule {
 
-  override val plugins = Set(new PongPlugin(), new EchoPlugin())
-}
