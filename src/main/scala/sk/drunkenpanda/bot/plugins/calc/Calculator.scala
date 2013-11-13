@@ -11,6 +11,4 @@ class Calculator {
     case BinaryOperator("/", left, right) => evaluate(left) / evaluate(right)
     case _ => throw new IllegalArgumentException("Expression is not valid")
   }
-
 }
-
