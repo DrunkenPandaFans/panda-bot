@@ -4,7 +4,7 @@ seq(SbtStartScript.startScriptForClassesSettings: _*)
 
 seq(ScctPlugin.instrumentSettings : _*)
 
-seq(com.github.theon.coveralls.CoverallsPlugin.coverallsSettings: _*)
+seq(CoverallsPlugin.singleProject: _*)
 
 org.scalastyle.sbt.ScalastylePlugin.Settings
 
@@ -21,6 +21,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.2.1",
+  "org.parboiled" %% "parboiled-scala" % "1.1.5",
   "org.specs2" %% "specs2" % "2.2.3" % "test"
 )
 
