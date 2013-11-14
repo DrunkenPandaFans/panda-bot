@@ -5,13 +5,13 @@ import org.parboiled.errors.{ErrorUtils, ParsingException}
 
 class ExpressionParser extends Parser {
 
-  def InputLine = rule { Input ~ EOI }
+  private def InputLine = rule { Input ~ EOI }
 
-  def Input: Rule1[Expression] = Term ~ zeroOrMore(
+  private def Input: Rule1[Expression] = Term ~ zeroOrMore(
     "+" ~ Term ~~> binaryOperator("+") _ |
-    "-" ~ Term ~~> binaryOperator("-") _)
+      "-" ~ Term ~~> binaryOperator("-") _)
 
-  def Term = rule {
+  private def Term = rule {
     Factor ~ zeroOrMore(
       "*" ~ Factor ~~> binaryOperator("*") _ |
       "/" ~ Factor ~~> binaryOperator("/") _ |
@@ -19,21 +19,21 @@ class ExpressionParser extends Parser {
     )
   }
 
-  def NegativeFraction = rule {"-" ~ Fraction ~~> (a => new UnaryOperator("-", a))}
+  private def NegativeFraction = rule {"-" ~ Fraction ~~> (a => UnaryOperator("-", a))}
 
-  def Factor = rule { Fraction | Parents | NegativeFraction}
+  private def Factor = rule { Fraction | Parents | NegativeFraction}
 
-  def Parents = rule {"(" ~ Input ~ ")"}
+  private def Parents = rule {"(" ~ Input ~ ")"}
 
-  def Fraction = rule {
-    group(oneOrMore("1" - "9") ~ optional("." ~ oneOrMore(Digits))) ~> ((value: String) => number(value))
+  private def Fraction = rule {
+    group(oneOrMore("1" - "9") ~
+      optional("." ~ oneOrMore(Digits))) ~>
+    ((value: String) => Number(BigDecimal(value)))
   }
 
-  def Digits = rule { oneOrMore("0" - "9") }
+  private def Digits = rule { oneOrMore("0" - "9") }
 
-  def number(value: String) = Number(BigDecimal(value))
-
-  def binaryOperator(symbol: String)(a: Expression, b: Expression): Expression =
+  private def binaryOperator(symbol: String)(a: Expression, b: Expression): Expression =
     BinaryOperator(symbol, a, b)
 
   def parse(value: String) = {
