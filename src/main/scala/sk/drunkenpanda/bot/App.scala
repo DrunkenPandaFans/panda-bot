@@ -1,4 +1,4 @@
-package sk.drunkenpanda.bot
+  package sk.drunkenpanda.bot
 
 import akka.actor.ActorSystem
 import java.net.Socket
@@ -7,6 +7,7 @@ import sk.drunkenpanda.bot.io._
 import sk.drunkenpanda.bot.plugins.AbstractPluginModule
 import sk.drunkenpanda.bot.plugins.EchoPlugin
 import sk.drunkenpanda.bot.plugins.PongPlugin
+import sk.drunkenpanda.bot.plugins.calc.{Calculator, ExpressionParser, CalculatorPlugin}
 
 object App {
 
@@ -29,7 +30,8 @@ object App {
  
   class SimplePluginModule extends AbstractPluginModule {
 
-    override val plugins = Set(new PongPlugin(), new EchoPlugin())
+    override val plugins = Set(new PongPlugin(), new EchoPlugin(),
+      new CalculatorPlugin(new Calculator, new ExpressionParser))
   } 
 }
 
