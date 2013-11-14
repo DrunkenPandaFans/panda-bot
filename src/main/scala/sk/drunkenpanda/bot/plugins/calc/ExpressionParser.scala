@@ -5,66 +5,44 @@ import org.parboiled.errors.{ErrorUtils, ParsingException}
 
 class ExpressionParser extends Parser {
 
-  def inputLine = rule { expression ~ EOI }
+  def InputLine = rule { InputExpression ~ EOI }
 
-  def expression: Rule1[Expression] = rule { 
-    expression ~ optional((addition | substraction) ~ term)
+  def InputExpression: Rule1[Expression] = rule {
+    Term ~ zeroOrMore (
+      "+" ~ Term ~~> binaryOperator("+") _
+    | "-" ~ Term ~~> binaryOperator("-") _
+    )
   }
 
-  def term: Rule1[Expression] = rule {
-    term ~ optional((multiplication | division | power) ~ factor)
+  def Term = rule {
+    Factor ~ zeroOrMore(
+      "*" ~ Factor ~~> binaryOperator("*")
+    | "/" ~ Factor ~~> binaryOperator("/")
+    | "^" ~ Facor ~~> binaryOperator("^")
+    )
   }
 
-  def factor: Rule1[Expression] = rule {
-    brackets | negation | number
+  def Factor = rule { DecimalNumber | Brackets }
+
+  def Brackets = rule { "(" ~ InputExpression ~ ")" }
+
+  def DecimalNumber = rule { 
+    group(("1" - "9") ~ optional("." ~ Digits)) ~> number
   }
 
-  def addition: Rule1[Expression] = rule { 
-    expression ~ "+" ~ expression ~~> binaryOperation("+") _
-  }
-
-  def substraction: Rule1[Expression] = rule {
-    expression ~ "-" ~ expression ~~> binaryOperation("-") _
-  }
-
-  def multiplication: Rule1[Expression] = rule {
-    expression ~ "*" ~ expression ~~> binaryOperation("*") _
-  }
-
-  def division = rule {
-    expression ~ "/" ~ expression ~~> binaryOperation("/") _
-  }
-
-  def power = rule {
-    expression ~ "^" ~ expression ~~> binaryOperation("^") _
-  }
-
-  def negation = rule {
-    "-" ~ expression ~~> unaryOperation("-") _
-  }
-
-  def brackets = rule { "(" ~ expression ~ ")" }
-
-  def number = rule { 
-    digits ~ optional("." ~ digits) ~> {s: String => Number(BigDecimal(s))}
-  }
-
-  def digits = rule { oneOrMore(digit) }
-
-  def digit = rule { "0" - "9"}
-
-  private def binaryOperation(symbol: String)(left: Expression, right: Expression) =
-    BinaryOperator(symbol, left, right)
-
-  private def unaryOperation(symbol: String)(expr: Expression): Expression = 
-    UnaryOperator(symbol, expr)
+  def Digits = rule { oneOrMore("0" - "9") }
 
   def calculate(value: String): Expression = {
-    val parsingResult = ReportingParseRunner(inputLine).run(value)
+    val parsingResult = ReportingParseRunner(InputLine).run(value)
     parsingResult.result match {
       case Some(expr) => expr
       case None => throw new ParsingException("Invalid calculation\n" +
         ErrorUtils.printParseErrors(parsingResult))
     }
   }
+
+  private def binaryOperator(symbol: String)(a: Expression, b: Expression) = 
+    new BinaryOperator(symbol, a, b)
+
+  private def number(value: String) = new Number(BigDecimal(value))
 }
