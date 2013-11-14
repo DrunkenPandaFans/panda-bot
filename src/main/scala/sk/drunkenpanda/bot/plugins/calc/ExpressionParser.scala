@@ -5,44 +5,42 @@ import org.parboiled.errors.{ErrorUtils, ParsingException}
 
 class ExpressionParser extends Parser {
 
-  def InputLine = rule { InputExpression ~ EOI }
+  def InputLine = rule { Input ~ EOI }
 
-  def InputExpression: Rule1[Expression] = rule {
-    Term ~ zeroOrMore (
-      "+" ~ Term ~~> binaryOperator("+") _
-    | "-" ~ Term ~~> binaryOperator("-") _
-    )
-  }
+  def Input: Rule1[Expression] = Term ~ zeroOrMore(
+    "+" ~ Term ~~> binaryOperator("+") _ |
+    "-" ~ Term ~~> binaryOperator("-") _)
 
   def Term = rule {
     Factor ~ zeroOrMore(
-      "*" ~ Factor ~~> binaryOperator("*")
-    | "/" ~ Factor ~~> binaryOperator("/")
-    | "^" ~ Facor ~~> binaryOperator("^")
+      "*" ~ Factor ~~> binaryOperator("*") _ |
+      "/" ~ Factor ~~> binaryOperator("/") _ |
+      "^" ~ Factor ~~> binaryOperator("^") _
     )
   }
 
-  def Factor = rule { DecimalNumber | Brackets }
+  def NegativeFraction = rule {"-" ~ Fraction ~~> (a => new UnaryOperator("-", a))}
 
-  def Brackets = rule { "(" ~ InputExpression ~ ")" }
+  def Factor = rule { Fraction | Parents | NegativeFraction}
 
-  def DecimalNumber = rule { 
-    group(("1" - "9") ~ optional("." ~ Digits)) ~> number
+  def Parents = rule {"(" ~ Input ~ ")"}
+
+  def Fraction = rule {
+    group(oneOrMore("1" - "9") ~ optional("." ~ oneOrMore(Digits))) ~> ((value: String) => number(value))
   }
 
   def Digits = rule { oneOrMore("0" - "9") }
 
-  def calculate(value: String): Expression = {
+  def number(value: String) = Number(BigDecimal(value))
+
+  def binaryOperator(symbol: String)(a: Expression, b: Expression): Expression =
+    BinaryOperator(symbol, a, b)
+
+  def parse(value: String) = {
     val parsingResult = ReportingParseRunner(InputLine).run(value)
     parsingResult.result match {
       case Some(expr) => expr
-      case None => throw new ParsingException("Invalid calculation\n" +
-        ErrorUtils.printParseErrors(parsingResult))
+      case None => throw new ParsingException("Invalid input value.\n" + ErrorUtils.printParseErrors(parsingResult))
     }
   }
-
-  private def binaryOperator(symbol: String)(a: Expression, b: Expression) = 
-    new BinaryOperator(symbol, a, b)
-
-  private def number(value: String) = new Number(BigDecimal(value))
 }
