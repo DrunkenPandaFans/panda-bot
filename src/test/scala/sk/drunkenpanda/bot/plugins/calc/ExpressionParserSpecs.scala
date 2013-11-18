@@ -9,14 +9,14 @@ class ExpressionParserSpecs extends Specification {
 
   "ExpressionParser" should {
     "parse simple numbers as Number" in {
-      parser.parse("1") must beEqualTo(Number("1.0"))
+      parser.parse("1") must beEqualTo(Number("1"))
       parser.parse("1.2") must beEqualTo(Number("1.2"))
     }
 
     "parse negative numbers as mix of UnaryOperator and Number" in {
-      val expected1 = UnaryOperator("-", Number("-1"))
+      val expected1 = UnaryOperator("-", Number("1"))
       parser.parse("-1") must beEqualTo(expected1)
-      val expected2 = UnaryOperator("-", Number("-12.3"))
+      val expected2 = UnaryOperator("-", Number("12.3"))
       parser.parse("-12.3") must beEqualTo(expected2)
     }
 
@@ -42,7 +42,7 @@ class ExpressionParserSpecs extends Specification {
 
     "parse '*' as BinaryOperator" in {
       val expected = BinaryOperator("*", Number("1.0"), Number("2.3"))
-      parser.parse("1.0*2.0") must beEqualTo(expected)
+      parser.parse("1.0*2.3") must beEqualTo(expected)
     }
 
     "parse '/' as BinaryOperator"  in {
