@@ -2,6 +2,7 @@ package sk.drunkenpanda.bot.plugins.calc
 
 import org.parboiled.scala._
 import org.parboiled.errors.{ErrorUtils, ParsingException}
+import scala.util.{Try, Success, Failure}
 
 class ExpressionParser extends Parser {
 
@@ -28,7 +29,7 @@ class ExpressionParser extends Parser {
   private def Fraction = rule {
     group(oneOrMore("1" - "9") ~
       optional("." ~ oneOrMore(Digits))) ~>
-    ((value: String) => Number(BigDecimal(value)))
+    ((value: String) => Number(value))
   }
 
   private def Digits = rule { oneOrMore("0" - "9") }
@@ -36,11 +37,14 @@ class ExpressionParser extends Parser {
   private def binaryOperator(symbol: String)(a: Expression, b: Expression): Expression =
     BinaryOperator(symbol, a, b)
 
-  def parse(value: String) = {
-    val parsingResult = ReportingParseRunner(InputLine).run(value)
+  private val parseRunner = ReportingParseRunner(InputLine)
+
+  def parse(value: String): Expression = {
+    val parsingResult = parseRunner.run(value)
     parsingResult.result match {
       case Some(expr) => expr
-      case None => throw new ParsingException("Invalid input value.\n" + ErrorUtils.printParseErrors(parsingResult))
+      case None => throw new ParsingException(
+        ErrorUtils.printParseErrors(parsingResult))
     }
   }
 }
