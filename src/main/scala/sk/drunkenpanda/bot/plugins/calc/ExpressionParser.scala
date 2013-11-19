@@ -37,9 +37,8 @@ class ExpressionParser extends Parser {
   private def binaryOperator(symbol: String)(a: Expression, b: Expression): Expression =
     BinaryOperator(symbol, a, b)
 
-  private val parseRunner = ReportingParseRunner(InputLine)
-
   def parse(value: String): Expression = {
+    val parseRunner = ReportingParseRunner(InputLine)
     val parsingResult = parseRunner.run(value)
     parsingResult.result match {
       case Some(expr) => expr
