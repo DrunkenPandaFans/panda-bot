@@ -18,9 +18,9 @@ class Calculator {
 
 class CalculatorPlugin(calculator: Calculator, parser: ExpressionParser) extends Plugin {
 
-  private lazy val format = "panda compute (.+), please".r
+  private lazy val format = "panda compute (.+),* please".r
 
-   def respond(message: Message): Option[Message] = message match {
+  def respond(message: Message): Option[Message] = message match {
     case PrivateMessage(from, text) => Some(Response(from, prepareResponse(text)))
     case _ => None
   }
