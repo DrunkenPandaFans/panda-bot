@@ -30,5 +30,5 @@ class CalculatorPlugin(calculator: Calculator, parser: ExpressionParser) extends
     case _ => "I am sorry, sir. But your expression is invalid."
   }
 
-  def process(exp: String) = parser.parse _ andThen calculator.evaluate _
+  def process = parser.parse _ andThen calculator.evaluate _
 }
