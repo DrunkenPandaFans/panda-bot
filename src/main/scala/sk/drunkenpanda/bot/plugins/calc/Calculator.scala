@@ -18,7 +18,7 @@ class Calculator {
 
 class CalculatorPlugin(calculator: Calculator, parser: ExpressionParser) extends Plugin {
 
-  private lazy val format = "panda compute (.+),* please".r
+  private lazy val format = "panda compute ([\\W\\d ]+?),* please".r
 
   def respond(message: Message): Option[Message] = message match {
     case PrivateMessage(from, text) => Some(Response(from, prepareResponse(text)))
@@ -30,5 +30,5 @@ class CalculatorPlugin(calculator: Calculator, parser: ExpressionParser) extends
     case _ => "I am sorry, sir. But your expression is invalid."
   }
 
-  def process = parser.parse _ andThen calculator.evaluate _
+  def process(exp: String) = parser.parse _ andThen calculator.evaluate _
 }
