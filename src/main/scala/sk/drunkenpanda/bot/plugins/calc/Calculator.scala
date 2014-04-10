@@ -2,6 +2,7 @@ package sk.drunkenpanda.bot.plugins.calc
 
 import sk.drunkenpanda.bot.plugins.Plugin
 import sk.drunkenpanda.bot.{Response, PrivateMessage, Message}
+import scala.util.matching.Regex
 
 class Calculator {
 
@@ -18,17 +19,17 @@ class Calculator {
 
 class CalculatorPlugin(calculator: Calculator, parser: ExpressionParser) extends Plugin {
 
-  private lazy val format = "panda compute ([\\W\\d ]+?),* please".r
+  private lazy val format: Regex = "panda compute ([\\W\\d ]+?),* please".r
 
   def respond(message: Message): Option[Message] = message match {
     case PrivateMessage(from, text) => Some(Response(from, prepareResponse(text)))
     case _ => None
   }
 
-  def prepareResponse(text: String) = text match {
-    case format(expression) => s"And your result is... " + process(expression) + "!!"
+  def prepareResponse(text: String): String = text match {
+    case format(expression) => s"And your result is... " + process(expression).toString + "!!"
     case _ => "I am sorry, sir. But your expression is invalid."
   }
 
-  def process = parser.parse _ andThen calculator.evaluate _
+  def process: String => BigDecimal = parser.parse _ andThen calculator.evaluate _
 }
