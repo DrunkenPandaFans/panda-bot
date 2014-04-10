@@ -12,7 +12,7 @@ name := "PandaBot"
 
 version := "1.0"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.4"
 
 resolvers ++= Seq(
   "typesafe" at "http://repo.typesafe.com/typesafe/releases/",
@@ -22,6 +22,7 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.2.1",
   "org.parboiled" %% "parboiled-scala" % "1.1.5",
+//  "net.databinder.dispatch" %% "dispatch-core" % "0.11.0",
   "org.specs2" %% "specs2" % "2.2.3" % "test",
   "org.mockito" % "mockito-all" % "1.9.5" % "test"
 )
