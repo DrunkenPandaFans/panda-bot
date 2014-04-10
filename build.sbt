@@ -2,9 +2,9 @@ import com.typesafe.sbt.SbtStartScript
 
 seq(SbtStartScript.startScriptForClassesSettings: _*)
 
-seq(ScctPlugin.instrumentSettings : _*)
+ScoverageSbtPlugin.instrumentSettings
 
-seq(CoverallsPlugin.singleProject: _*)
+CoverallsPlugin.coverallsSettings
 
 org.scalastyle.sbt.ScalastylePlugin.Settings
 
