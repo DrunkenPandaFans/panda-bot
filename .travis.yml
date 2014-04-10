@@ -5,5 +5,3 @@ jdk:
   - openjdk7
   - oraclejdk7
 script: "sbt coveralls"
-notifications:
-    flowdock: cc5161b3330f5aa7b2fbb7228bfc1ca2
