@@ -4,4 +4,7 @@ scala:
 jdk:
   - openjdk7
   - oraclejdk7
-script: "sbt coveralls"
+script:
+  - sbt compile test
+after_success:
+  - sbt coveralls
