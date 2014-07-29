@@ -17,8 +17,9 @@ object App {
 
   def startBot(source: ConnectionSource) = {
     val system = ActorSystem("pandabot")
+    val config = Config.fromProperties("config.props")
     val writer = system.actorOf(StreamWriter.props(bot, source))
-    val reader = system.actorOf(StreamReader.props(bot, source))
+    val reader = system.actorOf(StreamReader.props(bot, source, config))
     val processor = system.actorOf(MessageProcessor.props(new SimplePluginModule))
     val masterActor = system.actorOf(
       MasterActor.props(processor, reader, writer))

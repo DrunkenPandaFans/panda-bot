@@ -3,18 +3,18 @@ package sk.drunkenpanda.bot.actor
 import akka.actor.Actor
 import akka.actor.Props
 import akka.event.Logging
-import sk.drunkenpanda.bot.Bot
+import sk.drunkenpanda.bot.{Config, Bot}
 import sk.drunkenpanda.bot.io.ConnectionSource
 
 object StreamReader {
   case object Start
   case object Stop
 
-  def props(bot: Bot, source: ConnectionSource) = 
-    Props(classOf[StreamReader], bot, source)
+  def props(bot: Bot, source: ConnectionSource, config: Config) =
+    Props(classOf[StreamReader], bot, source, config)
 }
 
-class StreamReader(bot: Bot, source: ConnectionSource) 
+class StreamReader(bot: Bot, source: ConnectionSource, config: Config)
   extends Actor with LoggableActor {    
 
   def receive = {
@@ -23,7 +23,7 @@ class StreamReader(bot: Bot, source: ConnectionSource)
   }
 
   def start = {
-    bot.connect("PandaBot", "Drunken Panda", "#drunken-panda")(source)
+    bot.connect(config.nickname, config.realname, config.channel)(source)
     val messageStream = bot.listen()(source)
     messageStream foreach { msg =>  sender ! msg }
   }
