@@ -39,7 +39,7 @@ class CalculatorPluginSpecs extends Specification with Mockito {
       val expression = BinaryOperator("+", Number(1.0), Number(2.0))
       calculatorMock.evaluate(expression) returns BigDecimal(3.0)
       expressionParserMock.parse("1+2") returns expression
-      
+
       val expected = "And your result is... 3.0!!"
       plugin.prepareResponse("panda compute 1+2, please") must beEqualTo(expected)
     }
