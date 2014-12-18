@@ -9,6 +9,8 @@ import sk.drunkenpanda.bot.Response
 
 trait Plugin {
   def respond(message: Message): Option[Message]
+
+  def onShutdown: Unit
 }
 
 class EchoPlugin extends Plugin {
@@ -20,7 +22,7 @@ class EchoPlugin extends Plugin {
     case _ => None
   }
 
-  def prepareResponse(to: String, responseMessage: Option[String]) = 
+  def prepareResponse(to: String, responseMessage: Option[String]) =
     for {
       message <- responseMessage
     } yield new Response(to, s"Echoing message...$message")
@@ -29,6 +31,8 @@ class EchoPlugin extends Plugin {
     case format(toEcho) => Some(toEcho)
     case _ => None
   }
+
+  override def onShutdown = Unit
 }
 
 class PongPlugin extends Plugin {
@@ -37,4 +41,6 @@ class PongPlugin extends Plugin {
     case Ping(hash) => Option(new Pong(hash))
     case _ => None
   }
+
+  override def onShutdown = Unit
 }

@@ -27,21 +27,21 @@ class CalculatorPluginSpecs extends Specification with Mockito {
     }
 
     "respond to PrivateMessage" in {
-      plugin.respond(PrivateMessage("octocat", "1+2")) must beSome[Message]
+      plugin.respond(PrivateMessage("octocat", "panda compute 1+2, please")) must beSome[Message]
     }
 
     "prepare info about invalid format if text is invalid" in {
-      plugin.prepareResponse("compute 1+2, please") must startWith("I am sorry, sir")
-      plugin.prepareResponse("compute 2+1") must startWith("I am sorry, sir")
+      plugin.prepareResponse("compute 1+2, please") must beNone
+      plugin.prepareResponse("compute 2+1") must beNone
     }
 
     "prepare results if text is in valid format" in {
       val expression = BinaryOperator("+", Number(1.0), Number(2.0))
       calculatorMock.evaluate(expression) returns BigDecimal(3.0)
       expressionParserMock.parse("1+2") returns expression
-      
+
       val expected = "And your result is... 3.0!!"
-      plugin.prepareResponse("panda compute 1+2, please") must beEqualTo(expected)
+      plugin.prepareResponse("panda compute 1+2, please") must beSome(expected)
     }
   }
 }
