@@ -46,6 +46,30 @@ class MessageSpecs extends Specification {
       Message.print(message) must beEqualTo(expected)
     }
 
+    "print join message" in {
+      val expected = "JOIN #drunken_panda"
+      val message = Join("#drunken_panda")
+      Message.print(message) must beEqualTo(expected)
+    }
+
+    "print leave message" in {
+      val expected = "PART #drunken_panda"
+      val message = Leave("#drunken_panda")
+      Message.print(message) must beEqualTo(expected)
+    }
+
+    "print user message" in {
+      val expected = "USER drunken_panda 0 * :Drunken Panda Bot"
+      val message = User("drunken_panda", "Drunken Panda Bot")
+      Message.print(message) must beEqualTo(expected)
+    }
+
+    "print nick message" in {
+      val expected = "NICK DrunkenPanda"
+      val message = Nick("DrunkenPanda")
+      Message.print(message) must beEqualTo(expected)
+    }
+
     "not print anything else" in {
       val message = new Ping("abcds")
       Message.print(message) must beEqualTo("")
