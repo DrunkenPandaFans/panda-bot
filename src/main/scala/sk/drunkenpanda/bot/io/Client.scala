@@ -1,36 +1,50 @@
 package sk.drunkenpanda.bot.io
 
-import sk.drunkenpanda.bot.Message
+import rx.lang.scala.{Subscription, Observable}
+import sk.drunkenpanda.bot.{Join, Message}
+
+import scala.util.Try
 
 trait IrcClient {
-  def join(channel: String): ConnectionSource => Unit
+  def source: ConnectionSource
 
-  def open(realname: String, username: String): ConnectionSource => Unit
+  def connect(username: String, nickname: String, realName: String): Unit = {
+    println("Connecting...")
+    source.write(s"NICK $nickname")
+    println("Nick sent..")
+    source.write(s"USER $username 0 * :$realName")
+    println("User sent")
+  }
 
-  def send(message: Message): ConnectionSource => Unit
+  def listen(channels: Seq[String]): Observable[String] = Observable[String](subscriber => {
+    new Thread(new Runnable {
+      override def run() = {
+        try {
+          channels.map(Join(_)).foreach(write(_))
 
-  def receive(): ConnectionSource => Message
+          while (!subscriber.isUnsubscribed) {
+            source.read(br => subscriber.onNext(br.readLine()))
+          }
 
-  def leave(channel: String): ConnectionSource => Unit
-  
+          if (!subscriber.isUnsubscribed) {
+            subscriber.onCompleted
+          }
+        } catch {
+          case e: Throwable => if (!subscriber.isUnsubscribed) subscriber.onError(e)
+        }
+      }
+    }).start()
+  })
+
+  def write(message: Message): Unit = {
+    val msg = Message.print(message)
+    println(s"Sending: $msg")
+    source.write(msg)
+  }
+
+  def shutdown: Unit = source.shutdown
 }
 
-class NetworkIrcClient extends IrcClient {
-
-  def join(channel: String) = 
-    s => s.write(w => w.write("JOIN " + channel))
-
-  def open(realname: String, username: String) = 
-    {s => s.write(w => {
-      w.write("NICK " + username + "\n")
-      w.write("USER " + username + " 0 * :" + realname)})}
-
-  def send(message: Message) = 
-    s => s.write(w => w.write(Message.print(message)))
-
-  def receive() = 
-    s => Message.parse(s.read(r => r.readLine()))
-
-  def leave(channel: String) = 
-    s => s.write(w => w.write("PART " + channel))
+class NetworkIrClient(val server: String, val port: Int) extends IrcClient {
+  lazy val source = new SocketConnectionSource(server, port)
 }
