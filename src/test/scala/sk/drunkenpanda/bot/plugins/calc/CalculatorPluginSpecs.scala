@@ -1,7 +1,7 @@
 package sk.drunkenpanda.bot.plugins.calc
 
 import org.specs2.mutable._
-import org.specs2.mock._
+import org.specs2.mock.Mockito
 import sk.drunkenpanda.bot.Message
 import sk.drunkenpanda.bot.Notice
 import sk.drunkenpanda.bot.Ping

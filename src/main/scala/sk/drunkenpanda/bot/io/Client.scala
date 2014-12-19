@@ -9,11 +9,8 @@ trait IrcClient {
   def source: ConnectionSource
 
   def connect(username: String, nickname: String, realName: String): Unit = {
-    println("Connecting...")
     source.write(s"NICK $nickname")
-    println("Nick sent..")
     source.write(s"USER $username 0 * :$realName")
-    println("User sent")
   }
 
   def listen(channels: Seq[String]): Observable[String] = Observable[String](subscriber => {
@@ -38,7 +35,6 @@ trait IrcClient {
 
   def write(message: Message): Unit = {
     val msg = Message.print(message)
-    println(s"Sending: $msg")
     source.write(msg)
   }
 
