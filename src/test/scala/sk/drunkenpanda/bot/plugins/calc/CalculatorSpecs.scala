@@ -1,53 +1,57 @@
 package sk.drunkenpanda.bot.plugins.calc
 
-import org.specs2.mutable._
+import org.scalatest.{Matchers, FlatSpec}
 
-class CalculatorSpecs extends Specification {
+class CalculatorSpecs extends FlatSpec with Matchers {
 
   val calculator = new Calculator()
 
-  "Calculator" should {
-    "evaluate Number expression to its value" in {
-      calculator.evaluate(new Number(2.3)) must beEqualTo(BigDecimal(2.3))
+  behavior of "Calculator"
+  
+    it should "evaluate Number expression to its value" in {
+      calculator.evaluate(new Number(2.3)) should equal(BigDecimal(2.3))
     }
 
-    "evaluate negation to negative of its value" in {
+    it should "evaluate negation to negative of its value" in {
       val positiveValue = BigDecimal(1.2)
       val negativeValue = BigDecimal(-1.2)
       val negatePositive = new UnaryOperator("-", new Number(positiveValue))
       val negateNegative = new UnaryOperator("-", new Number(negativeValue))
-      calculator.evaluate(negatePositive) must beEqualTo(negativeValue)
-      calculator.evaluate(negateNegative) must beEqualTo(positiveValue)
+      calculator.evaluate(negatePositive) should equal(negativeValue)
+      calculator.evaluate(negateNegative) should equal(positiveValue)
     }
 
-    "evaluate addition to sum of its left and right expression" in {
+    it should "evaluate addition to sum of its left and right expression" in {
       val exp = new BinaryOperator("+", new Number(1.2), new Number(2.3))
-      calculator.evaluate(exp) must beEqualTo(BigDecimal(3.5))
+      calculator.evaluate(exp) should equal(BigDecimal(3.5))
     }
 
-    "evaluate subtraction to value of left side minus value of right side" in {
+    it should "evaluate subtraction to value of left side minus value of right side" in {
         val exp = new BinaryOperator("-", new Number(1.2), new Number(1.0))
-        calculator.evaluate(exp) must beEqualTo(BigDecimal(0.2))
+        calculator.evaluate(exp) should equal(BigDecimal(0.2))
       }
 
-    "evaluate multiplication to value of left side multiplied by right side" in {
+    it should "evaluate multiplication to value of left side multiplied by right side" in {
       val exp = new BinaryOperator("*", new Number(2.0), new Number(1.3))
-      calculator.evaluate(exp) must beEqualTo(BigDecimal(2.6))
+      calculator.evaluate(exp) should equal(BigDecimal(2.6))
     }
 
-    "evaluate division to value of left side divided by right side" in {
+    it should "evaluate division to value of left side divided by right side" in {
       val exp = new BinaryOperator("/", new Number(6.0), new Number(2.0))
-      calculator.evaluate(exp) must beEqualTo(BigDecimal(3.0))
+      calculator.evaluate(exp) should equal(BigDecimal(3.0))
     }
 
-    "evaluate other binary operators to exception" in {
+    it should "evaluate other binary operators to exception" in {
       val exp = new BinaryOperator("myoperator", new Number(6.0), new Number(2.0))
-      calculator.evaluate(exp) must throwA[IllegalArgumentException]
+      intercept[IllegalArgumentException] {
+        calculator.evaluate(exp)
+      }
     }
 
-    "evaluate other unary operators to exception" in {
+    it should "evaluate other unary operators to exception" in {
       val exp = new UnaryOperator("unaryoperator", new Number(6.0))
-      calculator.evaluate(exp) must throwA[IllegalArgumentException]
+      intercept[IllegalArgumentException] {
+        calculator.evaluate(exp)
+      }
     }
-  }
 }

@@ -1,72 +1,82 @@
 package sk.drunkenpanda.bot.io
 
-import java.io.{IOException, BufferedReader}
+import java.io.BufferedReader
+import java.lang
+import java.util.concurrent.{ExecutorService, Executors}
 
-import org.specs2.mutable.Specification
-import org.specs2.mock.Mockito
-import org.specs2.specification.Scope
-import org.specs2.time.NoTimeConversions
+import org.mockito.Mockito._
+import org.mockito.Matchers._
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterEach, ShouldMatchers, FlatSpec}
 import rx.lang.scala.schedulers.TestScheduler
 import sk.drunkenpanda.bot.{Join, Message, Response}
+
 import scala.concurrent.duration._
 
 /**
  * @author Jan Ferko
  */
-class IrcClientSpec extends Specification with Mockito with NoTimeConversions {
+class IrcClientSpec extends FlatSpec with ShouldMatchers with MockitoSugar with BeforeAndAfterEach {
 
-  "IrcClient" should {
+  val mockConnectionSource = mock[ConnectionSource]
 
-    "send NICK message during connection" in new system {
+  val ircClient = new IrcClient {
+    override def source: ConnectionSource = mockConnectionSource
+
+    override val executor: ExecutorService = Executors.newSingleThreadExecutor
+  }
+
+  override protected def beforeEach(): Unit = {
+    reset(mockConnectionSource)
+  }
+
+  behavior of "IrcClient"
+
+    it should "send NICK message during connection" in {
       ircClient.connect("drunken_panda", "DrunkenPanda", "DrunkenPandaBot")
-      there was one(mockConnectionSource).write("NICK DrunkenPanda")
+      verify(mockConnectionSource).write("NICK DrunkenPanda")
     }
 
-    "send USER message with user's name and real name during connection" in new system {
+    it should "send USER message with user's name and real name during connection" in {
       ircClient.connect("drunken_panda", "DrunkenPanda", "DrunkenPandaBot")
-      there was one(mockConnectionSource).write("USER drunken_panda 0 * :DrunkenPandaBot")
+      verify(mockConnectionSource).write("USER drunken_panda 0 * :DrunkenPandaBot")
     }
 
-    "write message value to source" in new system {
+    it should "write message value to source" in {
       val msg = Response("#drunkenpandas", "Hello from IrcClient spec... Everything is looking good")
       ircClient.write(msg)
-      there was one(mockConnectionSource).write(Message.print(msg))
+      verify(mockConnectionSource).write(Message.print(msg))
     }
 
-    "shutdown source on client shutdown" in new system {
+    it should "shutdown source on client shutdown" in {
       ircClient.shutdown
-      there was one(mockConnectionSource).shutdown
+      verify(mockConnectionSource).shutdown
     }
 
-    "connect to channels when listening" in new system {
+    it should "connect to channels when listening" in {
       val channels = List("#drunkenpandas", "#scala", "#scalaz")
-      val messages = ircClient.listen(channels).take(1).subscribe(println(_)).unsubscribe
+      val testScheduler = TestScheduler()
+      val messages = ircClient.listen(channels).take(1).subscribeOn(testScheduler).subscribe(s => ()).unsubscribe
+      testScheduler.advanceTimeBy(1 second)
 
       // expected messages sent to source
       channels.map(ch => Message.print(Join(ch))).foreach {msg =>
-        there was one(mockConnectionSource).write(msg)
+        verify(mockConnectionSource).write(msg)
       }
     }
 
     //@TODO this does not test failures properly...
-    "notifies subscribers on error" in new system {
-      mockConnectionSource.read(any[Function1[BufferedReader, String]]) throws(new IllegalStateException())
+    it should "notifies subscribers on error" in {
+      when(mockConnectionSource.read(any(classOf[(BufferedReader) => String])))
+        .thenThrow(new IllegalStateException())
+
       val testScheduler = TestScheduler()
       val messages = ircClient.listen(List("#drunkenpanda")).subscribeOn(testScheduler)
       testScheduler.advanceTimeBy(5 seconds)
 
       messages.subscribe(
-        message => failure("Client should report errors to subscribers"),
-        err => err must beAnInstanceOf[IllegalStateException]
+        message => fail("Client should report errors to subscribers"),
+        err => err shouldBe a [lang.IllegalStateException]
       ).unsubscribe
     }
-  }
-
-  trait system extends Scope {
-    val mockConnectionSource = mock[ConnectionSource]
-
-    val ircClient = new IrcClient {
-      override def source: ConnectionSource = mockConnectionSource
-    }
-  }
 }
