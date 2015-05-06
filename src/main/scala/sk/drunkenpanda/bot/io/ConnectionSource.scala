@@ -24,19 +24,12 @@ class SocketConnectionSource(server: String, port: Int) extends ConnectionSource
     pw.write(value)
     pw.write("\n")
     pw.flush()
-    pw.close
-    osw.close
   }
 
   def read = for {
     isr <- Try(new InputStreamReader(socket.getInputStream))
     br <- Try(new BufferedReader(isr))
-  } yield {
-    val line = br.readLine
-    br.close
-    isr.close
-    line
-  }
+  } yield br.readLine
 
   def shutdown = Try(socket.close())
 
