@@ -22,14 +22,16 @@ class CalculatorPlugin(calculator: Calculator, parser: ExpressionParser) extends
   private lazy val format: Regex = "panda compute ([\\W\\d ]+?),* please".r
 
   def respond(message: Message): Option[Message] = message match {
-    case PrivateMessage(from, text) => Some(Response(from, prepareResponse(text)))
+    case PrivateMessage(from, text) => prepareResponse(text).map(Response(from, _))
     case _ => None
   }
 
-  def prepareResponse(text: String): String = text match {
-    case format(expression) => s"And your result is... " + process(expression).toString + "!!"
-    case _ => "I am sorry, sir. But your expression is invalid."
+  def prepareResponse(text: String): Option[String] = text match {
+    case format(expression) => Some(s"And your result is... " + process(expression) + "!!")
+    case _ => None
   }
 
   def process: String => BigDecimal = parser.parse _ andThen calculator.evaluate _
+
+  def onShutdown = Unit
 }
