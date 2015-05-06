@@ -17,7 +17,7 @@ class EchoPluginSpecs extends FlatSpec with Matchers {
     it should "respond to private messages, that start with 'panda echo'" in {
       val message = new PrivateMessage("#mychannel", "panda echo this is awesome test.")
       val expectedResponse = new Response("#mychannel",
-        "this is awesome testttt.")
+        "this is awesome test test test test.")
 
       echoPlugin.respond(message) shouldBe Some(expectedResponse)
     }
@@ -47,12 +47,12 @@ class EchoPluginSpecs extends FlatSpec with Matchers {
     it should "prepare message if there is some text" in {
       val text = "this is awesome message, it has to be sent"
       echoPlugin.prepareResponse("toMe", text, "") should equal(
-      Response("toMe", s"${text}ttt"))
+      Response("toMe", s"${text} sent sent sent"))
     }
 
     it should "prepare message with suffix" in {
       val message = "this is awesome message"
       echoPlugin.prepareResponse("toMe", message, "!!") should equal(
-        Response("toMe", "this is awesome messageeee!!"))
+        Response("toMe", "this is awesome message message message message!!"))
     }
 }
