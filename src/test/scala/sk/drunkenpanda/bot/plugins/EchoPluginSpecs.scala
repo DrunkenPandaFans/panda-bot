@@ -21,9 +21,9 @@ class EchoPluginSpecs extends Specification {
 
   "EchoPlugin" should {
     "respond to private messages, that start with 'panda echo'" in {
-       val message = new PrivateMessage("#mychannel", "panda echo this is awesome test, please.")
+       val message = new PrivateMessage("#mychannel", "panda echo this is awesome test")
        val expectedResponse = new Response("#mychannel",
-        "Echoing message...this is awesome test")
+        "this is awesome testttt")
 
         echoPlugin.respond(message) must beSome(expectedResponse)
       }
@@ -35,9 +35,14 @@ class EchoPluginSpecs extends Specification {
         echoPlugin.respond(new Notice("note")) must beNone
       }
 
-      "parse text, that starts with 'panda echo' and end with ', please'" in {
-        val message = "panda echo this is awesome, please"
-        echoPlugin.parseText(message) must beSome("this is awesome")
+      "parse text, that starts with 'panda echo'" in {
+        val message = "panda echo this is awesome"
+        echoPlugin.parseText(message) must beSome(("this is awesome", ""))
+      }
+
+      "parse text with suffix" in {
+        val message = "panda echo this is awesome!!"
+        echoPlugin.parseText(message) must beSome(("this is awesome", "!!"))
       }
 
       "not parse text, that does not start with 'panda echo'" in {
@@ -45,19 +50,16 @@ class EchoPluginSpecs extends Specification {
         echoPlugin.parseText(message) must beNone
       }
 
-      "not parse text, that does not end with ', please'" in {
-        val message = "panda echo this is even more epic fail"
-        echoPlugin.parseText(message) must beNone
-      }
-
       "prepare message if there is some text" in {
-        val text = "this is awesome message, it has to be sent."
-        echoPlugin.prepareResponse("toMe", Some(text)) must beSome(
-          new Response("toMe", s"Echoing message...$text"))
+        val text = "this is awesome message, it has to be sent"
+        echoPlugin.prepareResponse("toMe", text, "") must beEqualTo(
+          Response("toMe", s"${text}ttt"))
       }
 
-      "not prepare message if there is no text" in {
-        echoPlugin.prepareResponse("toMe", None) must beNone
+      "prepare message with suffix" in {
+        val message = "this is awesome message"
+        echoPlugin.prepareResponse("toMe", message, "!!") must beEqualTo(
+          Response("toMe", "this is awesome messageeee!!"))
       }
   }
 
