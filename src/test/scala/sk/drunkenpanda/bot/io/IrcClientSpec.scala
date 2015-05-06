@@ -1,5 +1,7 @@
 package sk.drunkenpanda.bot.io
 
+import java.util.concurrent.{Executors, ExecutorService}
+
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -17,6 +19,8 @@ class IrcClientSpec extends FlatSpec with ShouldMatchers with MockitoSugar with 
 
   val ircClient = new IrcClient {
     override def source: ConnectionSource = mockConnectionSource
+
+    override def executor: ExecutorService = Executors.newSingleThreadExecutor
   }
 
   override protected def beforeEach(): Unit = {

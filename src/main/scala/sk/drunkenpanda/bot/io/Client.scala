@@ -1,5 +1,7 @@
 package sk.drunkenpanda.bot.io
 
+import java.util.concurrent.{Executors, ExecutorService, Executor}
+
 import rx.lang.scala.Observable
 import rx.lang.scala.schedulers.IOScheduler
 import sk.drunkenpanda.bot.{Join, Message}
@@ -8,6 +10,8 @@ import scala.util.Try
 
 trait IrcClient {
   def source: ConnectionSource
+
+  def executor: ExecutorService
 
   def connect(username: String, nickname: String, realName: String): Try[Unit] = for {
     _ <- source.write(s"NICK $nickname")
@@ -18,20 +22,24 @@ trait IrcClient {
     channels.map(Join(_)).foreach(write(_))
 
     Observable[String](subscriber => {
-      while (!subscriber.isUnsubscribed) {
-        source.read.map { line =>
-          subscriber.onNext(line)
-        } recover { case e =>
+      executor.submit(new Runnable {
+        override def run(): Unit = {
+          while (!subscriber.isUnsubscribed) {
+            source.read.map { line =>
+              subscriber.onNext(line)
+            } recover { case e =>
+              if (!subscriber.isUnsubscribed) {
+                subscriber.onError(e)
+              }
+            }
+          }
+
           if (!subscriber.isUnsubscribed) {
-            subscriber.onError(e)
+            subscriber.onCompleted
           }
         }
-      }
-
-      if (!subscriber.isUnsubscribed) {
-        subscriber.onCompleted
-      }
-    }).subscribeOn(IOScheduler())
+      })
+    })
   }
 
   def write(message: Message): Try[Unit] = {
@@ -44,4 +52,6 @@ trait IrcClient {
 
 class NetworkIrClient(val server: String, val port: Int) extends IrcClient {
   lazy val source = new SocketConnectionSource(server, port)
+
+  lazy val executor = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors + 2)
 }
