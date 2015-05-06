@@ -1,6 +1,6 @@
 package sk.drunkenpanda.bot.plugins
 
-import org.specs2.mutable._
+import org.scalatest.{Matchers, FlatSpec}
 import sk.drunkenpanda.bot.Notice
 import sk.drunkenpanda.bot.Ping
 import sk.drunkenpanda.bot.Pong
@@ -8,57 +8,51 @@ import sk.drunkenpanda.bot.PrivateMessage
 import sk.drunkenpanda.bot.Response
 import sk.drunkenpanda.bot.Unknown
 
-/**
- * Created with IntelliJ IDEA.
- * User: ferko
- * Date: 10/18/13
- * Time: 4:17 PM
- * To change this template use File | Settings | File Templates.
- */
-class EchoPluginSpecs extends Specification {
+class EchoPluginSpecs extends FlatSpec with Matchers {
 
   val echoPlugin = new EchoPlugin()
 
-  "EchoPlugin" should {
-    "respond to private messages, that start with 'panda echo'" in {
-       val message = new PrivateMessage("#mychannel", "panda echo this is awesome test")
-       val expectedResponse = new Response("#mychannel",
-        "this is awesome testttt")
+  behavior of "EchoPlugin"
 
-        echoPlugin.respond(message) must beSome(expectedResponse)
-      }
+    it should "respond to private messages, that start with 'panda echo'" in {
+      val message = new PrivateMessage("#mychannel", "panda echo this is awesome test, please.")
+      val expectedResponse = new Response("#mychannel",
+        "this is awesome testtt")
 
-      "not respond to other messages than private" in {
-        echoPlugin.respond(Unknown) must beNone
-        echoPlugin.respond(new Ping("pingpong")) must beNone
-        echoPlugin.respond(new Pong("pongping")) must beNone
-        echoPlugin.respond(new Notice("note")) must beNone
-      }
+      echoPlugin.respond(message) shouldBe Some(expectedResponse)
+    }
 
-      "parse text, that starts with 'panda echo'" in {
+    it should "not respond to other messages than private" in {
+      echoPlugin.respond(Unknown) should not be defined
+      echoPlugin.respond(new Ping("pingpong")) should not be defined
+      echoPlugin.respond(new Pong("pongping")) should not be defined
+      echoPlugin.respond(new Notice("note")) should not be defined
+    }
+
+     it should "parse text, that starts with 'panda echo'" in {
         val message = "panda echo this is awesome"
-        echoPlugin.parseText(message) must beSome(("this is awesome", ""))
+        echoPlugin.parseText(message) shouldBe Some(("this is awesome", ""))
       }
 
-      "parse text with suffix" in {
+      it should "parse text with suffix" in {
         val message = "panda echo this is awesome!!"
-        echoPlugin.parseText(message) must beSome(("this is awesome", "!!"))
+        echoPlugin.parseText(message) shouldBe Some(("this is awesome", "!!"))
       }
 
-      "not parse text, that does not start with 'panda echo'" in {
-        val message = "this is epic fail, please"
-        echoPlugin.parseText(message) must beNone
-      }
+    it should "not parse text, that does not end with ', please'" in {
+      val message = "panda echo this is even more epic fail"
+      echoPlugin.parseText(message) should not be defined
+    }
 
-      "prepare message if there is some text" in {
+     it should "prepare message if there is some text" in {
         val text = "this is awesome message, it has to be sent"
-        echoPlugin.prepareResponse("toMe", text, "") must beEqualTo(
+        echoPlugin.prepareResponse("toMe", text, "") should equal(
           Response("toMe", s"${text}ttt"))
       }
 
-      "prepare message with suffix" in {
+      it should "prepare message with suffix" in {
         val message = "this is awesome message"
-        echoPlugin.prepareResponse("toMe", message, "!!") must beEqualTo(
+        echoPlugin.prepareResponse("toMe", message, "!!") should equal(
           Response("toMe", "this is awesome messageeee!!"))
       }
   }

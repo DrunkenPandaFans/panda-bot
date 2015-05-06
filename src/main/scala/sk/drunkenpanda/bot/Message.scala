@@ -9,6 +9,10 @@ case class Response(to: String, text: String) extends Message
 case class Ping(hash: String) extends Message
 case class Pong(hash: String) extends Message
 case class Notice(note: String) extends Message
+case class Join(channel: String) extends Message
+case class Leave(channel: String) extends Message
+case class User(username: String, realName: String) extends Message
+case class Nick(nickname: String) extends Message
 
 object Message {
 
@@ -24,11 +28,15 @@ object Message {
     case noticePattern(note) => new Notice(note)
     case _ => Unknown
   }
- 
+
   def print(message: Message) = message match {
-    case Response(to, text) => "PRIVMSG " + to + " :" + text
-    case Pong(hash) => "PONG :" + hash
-  	case Notice(note) => "NOTICE :" + note
+    case Response(to, text) => s"PRIVMSG $to :$text"
+    case Pong(hash) => s"PONG :$hash"
+  	case Notice(note) => s"NOTICE :$note"
+    case Join(channel) => s"JOIN $channel"
+    case Leave(channel) => s"PART $channel"
+    case User(username, realName)  => s"USER $username 0 * :$realName"
+    case Nick(nickname) => s"NICK $nickname"
   	case _ => ""
   }
 }
