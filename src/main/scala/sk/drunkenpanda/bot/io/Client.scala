@@ -1,6 +1,7 @@
 package sk.drunkenpanda.bot.io
 
-import rx.lang.scala.{Subscription, Observable}
+import rx.lang.scala.Observable
+import rx.lang.scala.schedulers.IOScheduler
 import sk.drunkenpanda.bot.{Join, Message}
 
 import scala.util.Try
@@ -8,37 +9,37 @@ import scala.util.Try
 trait IrcClient {
   def source: ConnectionSource
 
-  def connect(username: String, nickname: String, realName: String): Unit = {
-    source.write(s"NICK $nickname")
-    source.write(s"USER $username 0 * :$realName")
-  }
+  def connect(username: String, nickname: String, realName: String): Try[Unit] = for {
+    _ <- source.write(s"NICK $nickname")
+    _ <- source.write(s"USER $username 0 * :$realName")
+  } yield ()
 
-  def listen(channels: Seq[String]): Observable[String] = Observable[String](subscriber => {
-    new Thread(new Runnable {
-      override def run() = {
-        try {
-          channels.map(Join(_)).foreach(write(_))
+  def listen(channels: Seq[String]): Observable[String] = {
+    channels.map(Join(_)).foreach(write(_))
 
-          while (!subscriber.isUnsubscribed) {
-            source.read(br => subscriber.onNext(br.readLine()))
-          }
-
+    Observable[String](subscriber => {
+      while (!subscriber.isUnsubscribed) {
+        source.read.map { line =>
+          subscriber.onNext(line)
+        } recover { case e =>
           if (!subscriber.isUnsubscribed) {
-            subscriber.onCompleted
+            subscriber.onError(e)
           }
-        } catch {
-          case e: Throwable => if (!subscriber.isUnsubscribed) subscriber.onError(e)
         }
       }
-    }).start()
-  })
 
-  def write(message: Message): Unit = {
+      if (!subscriber.isUnsubscribed) {
+        subscriber.onCompleted
+      }
+    }).subscribeOn(IOScheduler())
+  }
+
+  def write(message: Message): Try[Unit] = {
     val msg = Message.print(message)
     source.write(msg)
   }
 
-  def shutdown: Unit = source.shutdown
+  def shutdown: Try[Unit] = source.shutdown
 }
 
 class NetworkIrClient(val server: String, val port: Int) extends IrcClient {

@@ -1,17 +1,12 @@
 package sk.drunkenpanda.bot.io
 
-import java.io.BufferedReader
-import java.lang
-import java.util.concurrent.{ExecutorService, Executors}
-
-import org.mockito.Mockito._
 import org.mockito.Matchers._
+import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, ShouldMatchers, FlatSpec}
-import rx.lang.scala.schedulers.TestScheduler
+import org.scalatest.{BeforeAndAfterEach, FlatSpec, ShouldMatchers}
 import sk.drunkenpanda.bot.{Join, Message, Response}
 
-import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 
 /**
  * @author Jan Ferko
@@ -22,12 +17,12 @@ class IrcClientSpec extends FlatSpec with ShouldMatchers with MockitoSugar with 
 
   val ircClient = new IrcClient {
     override def source: ConnectionSource = mockConnectionSource
-
-    override val executor: ExecutorService = Executors.newSingleThreadExecutor
   }
 
   override protected def beforeEach(): Unit = {
     reset(mockConnectionSource)
+    when(mockConnectionSource.write(any[String])).thenReturn(Success(()))
+    when(mockConnectionSource.shutdown).thenReturn(Success(()))
   }
 
   behavior of "IrcClient"
@@ -55,28 +50,56 @@ class IrcClientSpec extends FlatSpec with ShouldMatchers with MockitoSugar with 
 
     it should "connect to channels when listening" in {
       val channels = List("#drunkenpandas", "#scala", "#scalaz")
-      val testScheduler = TestScheduler()
-      val messages = ircClient.listen(channels).take(1).subscribeOn(testScheduler).subscribe(s => ()).unsubscribe
-      testScheduler.advanceTimeBy(1 second)
+      val messages = ircClient.listen(channels).take(1).subscribe(s => ())
 
       // expected messages sent to source
-      channels.map(ch => Message.print(Join(ch))).foreach {msg =>
+      channels.map(ch => Message.print(Join(ch))).foreach { msg =>
         verify(mockConnectionSource).write(msg)
       }
+      messages.unsubscribe
     }
 
-    //@TODO this does not test failures properly...
     it should "notifies subscribers on error" in {
-      when(mockConnectionSource.read(any(classOf[(BufferedReader) => String])))
-        .thenThrow(new IllegalStateException())
+      //given
+      val channels = List("#panda")
+      var reported = false
+      when(mockConnectionSource.read).thenReturn(Failure(new IllegalArgumentException))
 
-      val testScheduler = TestScheduler()
-      val messages = ircClient.listen(List("#drunkenpanda")).subscribeOn(testScheduler)
-      testScheduler.advanceTimeBy(5 seconds)
+      // when
+      val sub = ircClient.listen(channels).subscribe(
+        s => fail("Observable should report error"),
+        err => {
+          err shouldBe a [IllegalArgumentException]
+          reported = true
+        }
+      )
 
-      messages.subscribe(
-        message => fail("Client should report errors to subscribers"),
-        err => err shouldBe a [lang.IllegalStateException]
-      ).unsubscribe
+      // then
+      Thread.sleep(100)
+      reported shouldBe true
+
+      sub.unsubscribe
+    }
+
+    it should "notify subscribers when new message is received" in {
+      // given
+      val channels = List("#panda")
+      var reported = false
+      val message = "Message1"
+      when(mockConnectionSource.read).thenReturn(Success(message))
+
+      // when
+      val sub = ircClient.listen(channels).take(1).subscribe(
+        msg => {
+          msg should equal(message)
+          reported = true
+        }
+      )
+
+      // then
+      Thread.sleep(100)
+      reported shouldBe true
+
+      sub.unsubscribe
     }
 }
