@@ -13,20 +13,25 @@ trait Plugin {
 
 class EchoPlugin extends Plugin {
 
-  private lazy val format = """panda echo (.+), please\.*""".r
+  private lazy val format = "panda echo (.+?)([\\.\\!\\?]+)?".r
+
+  private lazy val echoCharCount = 3
 
   override def respond(message: Message) = message match {
-    case PrivateMessage(from, text) => prepareResponse(from, parseText(text))
+    case PrivateMessage(from, text) => for {
+        (msg, suffix) <- parseText(text)
+      } yield prepareResponse(from, msg, suffix)
     case _ => None
   }
 
-  def prepareResponse(to: String, responseMessage: Option[String]) = 
-    for {
-      message <- responseMessage
-    } yield new Response(to, s"Echoing message...$message")
+  def prepareResponse(to: String, message: String, suffix: String) = {
+    val echo = message.last.toString * echoCharCount
+    Response(to, s"$message$echo$suffix")
+  } 
 
   def parseText(text: String) = text match {
-    case format(toEcho) => Some(toEcho)
+    case format(toEcho, null) => Some((toEcho, ""))
+    case format(toEcho, suffix) => Some((toEcho, suffix))
     case _ => None
   }
 }
