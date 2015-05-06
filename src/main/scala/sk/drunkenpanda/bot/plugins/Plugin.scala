@@ -17,7 +17,7 @@ class EchoPlugin extends Plugin {
 
   private lazy val format = "panda echo (.+?)([\\.\\!\\?]+)?".r
 
-  private lazy val echoCharCount = 3
+  private lazy val echoCount = 3
 
   override def respond(message: Message) = message match {
     case PrivateMessage(from, text) => for {
@@ -27,8 +27,8 @@ class EchoPlugin extends Plugin {
   }
 
   def prepareResponse(to: String, message: String, suffix: String) = {
-    val echo = message.last.toString * echoCharCount
-    Response(to, s"$message$echo$suffix")
+    val echo = List.fill(echoCount)(message.split(" ").last).mkString(" ")
+    Response(to, s"$message $echo$suffix")
   } 
 
   def parseText(text: String) = text match {
