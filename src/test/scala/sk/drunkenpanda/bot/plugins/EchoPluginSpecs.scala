@@ -15,9 +15,9 @@ class EchoPluginSpecs extends FlatSpec with Matchers {
   behavior of "EchoPlugin"
 
     it should "respond to private messages, that start with 'panda echo'" in {
-      val message = new PrivateMessage("#mychannel", "panda echo this is awesome test, please.")
+      val message = new PrivateMessage("#mychannel", "panda echo this is awesome test.")
       val expectedResponse = new Response("#mychannel",
-        "this is awesome testtt")
+        "this is awesome testttt.")
 
       echoPlugin.respond(message) shouldBe Some(expectedResponse)
     }
@@ -29,32 +29,30 @@ class EchoPluginSpecs extends FlatSpec with Matchers {
       echoPlugin.respond(new Notice("note")) should not be defined
     }
 
-     it should "parse text, that starts with 'panda echo'" in {
-        val message = "panda echo this is awesome"
-        echoPlugin.parseText(message) shouldBe Some(("this is awesome", ""))
-      }
+    it should "parse text, that starts with 'panda echo'" in {
+      val message = "panda echo this is awesome"
+      echoPlugin.parseText(message) shouldBe Some(("this is awesome", ""))
+    }
 
-      it should "parse text with suffix" in {
-        val message = "panda echo this is awesome!!"
-        echoPlugin.parseText(message) shouldBe Some(("this is awesome", "!!"))
-      }
-
-    it should "not parse text, that does not end with ', please'" in {
-      val message = "panda echo this is even more epic fail"
+    it should "not parse text, that does not start with 'panda echo'" in {
+      val message = "this is evil message"
       echoPlugin.parseText(message) should not be defined
     }
 
-     it should "prepare message if there is some text" in {
-        val text = "this is awesome message, it has to be sent"
-        echoPlugin.prepareResponse("toMe", text, "") should equal(
-          Response("toMe", s"${text}ttt"))
-      }
+    it should "parse text with suffix" in {
+      val message = "panda echo this is awesome!!"
+      echoPlugin.parseText(message) shouldBe Some(("this is awesome", "!!"))
+    }
 
-      it should "prepare message with suffix" in {
-        val message = "this is awesome message"
-        echoPlugin.prepareResponse("toMe", message, "!!") should equal(
-          Response("toMe", "this is awesome messageeee!!"))
-      }
-  }
+    it should "prepare message if there is some text" in {
+      val text = "this is awesome message, it has to be sent"
+      echoPlugin.prepareResponse("toMe", text, "") should equal(
+      Response("toMe", s"${text}ttt"))
+    }
 
+    it should "prepare message with suffix" in {
+      val message = "this is awesome message"
+      echoPlugin.prepareResponse("toMe", message, "!!") should equal(
+        Response("toMe", "this is awesome messageeee!!"))
+    }
 }
