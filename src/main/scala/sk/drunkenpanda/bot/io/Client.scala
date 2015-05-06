@@ -1,36 +1,57 @@
 package sk.drunkenpanda.bot.io
 
-import sk.drunkenpanda.bot.Message
+import java.util.concurrent.{Executors, ExecutorService, Executor}
+
+import rx.lang.scala.Observable
+import rx.lang.scala.schedulers.IOScheduler
+import sk.drunkenpanda.bot.{Join, Message}
+
+import scala.util.Try
 
 trait IrcClient {
-  def join(channel: String): ConnectionSource => Unit
+  def source: ConnectionSource
 
-  def open(realname: String, username: String): ConnectionSource => Unit
+  def executor: ExecutorService
 
-  def send(message: Message): ConnectionSource => Unit
+  def connect(username: String, nickname: String, realName: String): Try[Unit] = for {
+    _ <- source.write(s"NICK $nickname")
+    _ <- source.write(s"USER $username 0 * :$realName")
+  } yield ()
 
-  def receive(): ConnectionSource => Message
+  def listen(channels: Seq[String]): Observable[String] = {
+    channels.map(Join(_)).foreach(write(_))
 
-  def leave(channel: String): ConnectionSource => Unit
-  
+    Observable[String](subscriber => {
+      executor.submit(new Runnable {
+        override def run(): Unit = {
+          while (!subscriber.isUnsubscribed) {
+            source.read.map { line =>
+              subscriber.onNext(line)
+            } recover { case e =>
+              if (!subscriber.isUnsubscribed) {
+                subscriber.onError(e)
+              }
+            }
+          }
+
+          if (!subscriber.isUnsubscribed) {
+            subscriber.onCompleted
+          }
+        }
+      })
+    })
+  }
+
+  def write(message: Message): Try[Unit] = {
+    val msg = Message.print(message)
+    source.write(msg)
+  }
+
+  def shutdown: Try[Unit] = source.shutdown
 }
 
-class NetworkIrcClient extends IrcClient {
+class NetworkIrClient(val server: String, val port: Int) extends IrcClient {
+  lazy val source = new SocketConnectionSource(server, port)
 
-  def join(channel: String) = 
-    s => s.write(w => w.write("JOIN " + channel))
-
-  def open(realname: String, username: String) = 
-    {s => s.write(w => {
-      w.write("NICK " + username + "\n")
-      w.write("USER " + username + " 0 * :" + realname)})}
-
-  def send(message: Message) = 
-    s => s.write(w => w.write(Message.print(message)))
-
-  def receive() = 
-    s => Message.parse(s.read(r => r.readLine()))
-
-  def leave(channel: String) = 
-    s => s.write(w => w.write("PART " + channel))
+  lazy val executor = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors + 2)
 }

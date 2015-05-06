@@ -3,28 +3,34 @@ package sk.drunkenpanda.bot.io
 import java.io._
 import java.net.Socket
 
+import scala.util.Try
+
 trait ConnectionSource {
 
-  def write[A](f: Writer => A): A
+  def write(value: String): Try[Unit]
 
-  def read[A](f: BufferedReader => A): A
+  def read: Try[String]
+
+  def shutdown: Try[Unit]
 }
 
-class SocketConnectionSource(socket: Socket) extends ConnectionSource {
+class SocketConnectionSource(server: String, port: Int) extends ConnectionSource {
+  val socket: Socket = new Socket(server, port)
 
-  def write[A](f: Writer => A): A = {
-    val osw = new OutputStreamWriter(socket.getOutputStream)
-    val pw = new PrintWriter(osw)
-    val result = f(pw)
+  def write(value: String) = for {
+    osw <- Try(new OutputStreamWriter(socket.getOutputStream))
+    pw <- Try(new PrintWriter(osw))
+  } yield {
+    pw.write(value)
     pw.write("\n")
     pw.flush()
-    result
   }
 
-  def read[A](f: BufferedReader => A): A = {
-    val isr = new InputStreamReader(socket.getInputStream)
-    val br = new BufferedReader(isr)
-    f(br)
-  }
+  def read = for {
+    isr <- Try(new InputStreamReader(socket.getInputStream))
+    br <- Try(new BufferedReader(isr))
+  } yield br.readLine
+
+  def shutdown = Try(socket.close())
 
 }
