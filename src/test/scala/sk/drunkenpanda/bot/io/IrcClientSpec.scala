@@ -2,13 +2,15 @@ package sk.drunkenpanda.bot.io
 
 import java.util.concurrent.{Executors, ExecutorService}
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
+
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, ShouldMatchers}
 import sk.drunkenpanda.bot.{Join, Message, Response}
-
-import scala.util.{Failure, Success}
 
 /**
  * @author Jan Ferko
@@ -54,56 +56,39 @@ class IrcClientSpec extends FlatSpec with ShouldMatchers with MockitoSugar with 
 
     it should "connect to channels when listening" in {
       val channels = List("#drunkenpandas", "#scala", "#scalaz")
-      val messages = ircClient.listen(channels).take(1).subscribe(s => ())
+      when(mockConnectionSource.read).thenReturn(Success("Hello, friends!"))
 
-      // expected messages sent to source
+      // when
+      val messages = ircClient.listen(channels).take(1)
+
+      // then
+      Await.ready(messages.toBlocking.toFuture, 1.second)
       channels.map(ch => Message.print(Join(ch))).foreach { msg =>
         verify(mockConnectionSource).write(msg)
       }
-      messages.unsubscribe
     }
 
     it should "notifies subscribers on error" in {
       //given
       val channels = List("#panda")
-      var reported = false
       when(mockConnectionSource.read).thenReturn(Failure(new IllegalArgumentException))
 
       // when
-      val sub = ircClient.listen(channels).subscribe(
-        s => fail("Observable should report error"),
-        err => {
-          err shouldBe a [IllegalArgumentException]
-          reported = true
-        }
-      )
-
-      // then
-      Thread.sleep(100)
-      reported shouldBe true
-
-      sub.unsubscribe
+      val messagesObservable = ircClient.listen(channels).take(1)
+      intercept[IllegalArgumentException] {
+        Await.result(messagesObservable.toBlocking.toFuture, 5.second)
+      }
     }
 
     it should "notify subscribers when new message is received" in {
       // given
       val channels = List("#panda")
-      var reported = false
-      val message = "Message1"
-      when(mockConnectionSource.read).thenReturn(Success(message))
+      val expectedMessage = "Hello, friends!"
+      when(mockConnectionSource.read).thenReturn(Success(expectedMessage))
 
       // when
-      val sub = ircClient.listen(channels).take(1).subscribe(
-        msg => {
-          msg should equal(message)
-          reported = true
-        }
-      )
-
-      // then
-      Thread.sleep(100)
-      reported shouldBe true
-
-      sub.unsubscribe
+      val messages = ircClient.listen(channels).take(1)
+      val actualMessage = Await.result(messages.toBlocking.toFuture, 1.second)
+      actualMessage shouldBe expectedMessage
     }
 }
