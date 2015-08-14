@@ -51,7 +51,7 @@ trait IrcClient {
 }
 
 class NetworkIrClient(val server: String, val port: Int) extends IrcClient {
-  lazy val source = new SocketConnectionSource(server, port)
+  lazy val source = SocketConnectionSource(server, port)
 
   lazy val executor = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors + 2)
 }

@@ -14,15 +14,13 @@ trait ConnectionSource {
   def shutdown: Try[Unit]
 }
 
-class SocketConnectionSource(server: String, port: Int) extends ConnectionSource {
-  val socket: Socket = new Socket(server, port)
+class SocketConnectionSource(socket: => Socket) extends ConnectionSource {
 
   def write(value: String) = for {
     osw <- Try(new OutputStreamWriter(socket.getOutputStream))
     pw <- Try(new PrintWriter(osw))
   } yield {
-    pw.write(value)
-    pw.write("\n")
+    pw.write(value + "\n")
     pw.flush()
   }
 
@@ -33,4 +31,10 @@ class SocketConnectionSource(server: String, port: Int) extends ConnectionSource
 
   def shutdown = Try(socket.close())
 
+}
+
+object SocketConnectionSource {
+  def apply(server: String, port: Int) = new SocketConnectionSource(new Socket(server, port))
+
+  def apply(socket: => Socket) = new SocketConnectionSource(socket)
 }
