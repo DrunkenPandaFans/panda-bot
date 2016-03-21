@@ -3,10 +3,9 @@ scala:
   - 2.10.4
   - 2.11.4  
 jdk:
-  - openjdk7
   - oraclejdk7
   - oraclejdk8
 script:
-  - sbt compile test
+  - sbt clean coverage test coverageReport
 after_success:
-  - sbt coveralls
+  - bash <(curl -s https://codecov.io/bash) 
