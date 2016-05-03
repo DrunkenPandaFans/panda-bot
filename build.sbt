@@ -10,10 +10,11 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "io.reactivex" %% "rxscala" % "0.25.0",
+  "io.reactivex"  %% "rxscala"         % "0.25.0",
+  "io.monix"      %% "monix"           % "2.0-RC2",
   "org.parboiled" %% "parboiled-scala" % "1.1.6",
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-  "org.mockito" % "mockito-all" % "1.9.5" % "test"
+  "org.scalatest" %% "scalatest"       % "2.2.4" % "test",
+  "org.mockito"   % "mockito-all"      % "1.9.5" % "test"
 )
 
 scalacOptions in Test ++= Seq("-Yrangepos")
