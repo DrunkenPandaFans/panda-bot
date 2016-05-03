@@ -16,17 +16,25 @@ trait ConnectionSource {
 
 class SocketConnectionSource(socket: => Socket) extends ConnectionSource {
 
+  private lazy val printWriter =
+    for {
+      osw <- Try(new OutputStreamWriter(socket.getOutputStream))
+    } yield new PrintWriter(osw)
+
+  private lazy val bufferedReader =
+    for {
+      isr <- Try(new InputStreamReader(socket.getInputStream))
+    } yield new BufferedReader(isr)
+
   def write(value: String) = for {
-    osw <- Try(new OutputStreamWriter(socket.getOutputStream))
-    pw <- Try(new PrintWriter(osw))
+    pw <- printWriter
   } yield {
     pw.write(value + "\n")
     pw.flush()
   }
 
   def read = for {
-    isr <- Try(new InputStreamReader(socket.getInputStream))
-    br <- Try(new BufferedReader(isr))
+    br <- bufferedReader
   } yield br.readLine
 
   def shutdown = Try(socket.close())
