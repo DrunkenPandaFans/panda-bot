@@ -1,17 +1,13 @@
 package sk.drunkenpanda.bot.io
 
-import java.util.concurrent.{Executors, ExecutorService, Executor}
+import java.util.concurrent.{Executors, ExecutorService}
 
 import rx.lang.scala.Observable
-import rx.lang.scala.schedulers.IOScheduler
 import sk.drunkenpanda.bot.{Join, Message}
 
 import scala.util.Try
 
-trait IrcClient {
-  def source: ConnectionSource
-
-  def executor: ExecutorService
+class IrcClient(source: ConnectionSource, executor: ExecutorService) {
 
   def connect(username: String, nickname: String, realName: String): Try[Unit] = for {
     _ <- source.write(s"NICK $nickname")
@@ -50,8 +46,11 @@ trait IrcClient {
   def shutdown: Try[Unit] = source.shutdown
 }
 
-class NetworkIrClient(val server: String, val port: Int) extends IrcClient {
-  lazy val source = SocketConnectionSource(server, port)
+object IrcClient {
 
-  lazy val executor = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors + 2)
+  def apply(server: String, port: Int): IrcClient = {
+    val socketConnectionSource = SocketConnectionSource(server, port)
+    val executor = Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors + 2)
+    new IrcClient(socketConnectionSource, executor)
+  }
 }

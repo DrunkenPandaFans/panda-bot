@@ -19,11 +19,7 @@ class IrcClientSpec extends FlatSpec with ShouldMatchers with MockitoSugar with 
 
   val mockConnectionSource = mock[ConnectionSource]
 
-  val ircClient = new IrcClient {
-    override def source: ConnectionSource = mockConnectionSource
-
-    override def executor: ExecutorService = Executors.newSingleThreadExecutor
-  }
+  val ircClient = new IrcClient(mockConnectionSource, Executors.newSingleThreadExecutor)
 
   override protected def beforeEach(): Unit = {
     reset(mockConnectionSource)

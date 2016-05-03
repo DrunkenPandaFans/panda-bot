@@ -1,6 +1,6 @@
 package sk.drunkenpanda.bot
 
-import sk.drunkenpanda.bot.io.NetworkIrClient
+import sk.drunkenpanda.bot.io.IrcClient
 import sk.drunkenpanda.bot.plugins.AbstractPluginModule
 import sk.drunkenpanda.bot.plugins.EchoPlugin
 import sk.drunkenpanda.bot.plugins.PongPlugin
@@ -9,7 +9,7 @@ import sk.drunkenpanda.bot.plugins.calc.{Calculator, ExpressionParser, Calculato
 object App {
 
   def main(args: Array[String]): Unit = {
-    val client = new NetworkIrClient("irc.freenode.net", 6667)
+    val client = IrcClient("irc.freenode.net", 6667)
     val pluginModule = new SimplePluginModule
     val bot = new Bot(client, pluginModule)
     bot.start("Drunken_Panda", "Drunken_Panda", "Drunken Panda Bot", List("#drunken_panda"))
