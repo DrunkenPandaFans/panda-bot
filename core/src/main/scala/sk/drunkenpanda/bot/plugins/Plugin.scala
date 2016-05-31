@@ -10,7 +10,7 @@ import sk.drunkenpanda.bot.Response
 trait Plugin {
   def respond(message: Message): Option[Message]
 
-  def onShutdown: Unit
+  def onShutdown(): Unit
 }
 
 class EchoPlugin extends Plugin {
@@ -37,7 +37,7 @@ class EchoPlugin extends Plugin {
     case _ => None
   }
 
-  override def onShutdown = Unit
+  override def onShutdown() = () 
 }
 
 class PongPlugin extends Plugin {
@@ -47,5 +47,5 @@ class PongPlugin extends Plugin {
     case _ => None
   }
 
-  override def onShutdown = Unit
+  override def onShutdown() = () 
 }

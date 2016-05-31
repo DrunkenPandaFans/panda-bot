@@ -1,11 +1,12 @@
 package sk.drunkenpanda.bot
 
+import rx.lang.scala.Subscription
 import sk.drunkenpanda.bot.io._
 import sk.drunkenpanda.bot.plugins.PluginModule
 
 class Bot(ircClient: IrcClient, pluginModule: PluginModule) {
 
-  def start(username: String, nickname: String, realName: String, channels: Seq[String]): Unit = {
+  def start(username: String, nickname: String, realName: String, channels: Seq[String]): Subscription = {
     // check and handle errors
     ircClient.connect(username, nickname, realName)
     ircClient.listen(channels).filter(!_.isEmpty)
@@ -22,7 +23,7 @@ class Bot(ircClient: IrcClient, pluginModule: PluginModule) {
         () => stop)
   }
 
-  def stop: Unit = {
+  def stop(): Unit = {
     ircClient.shutdown
     pluginModule.shutdown
   }

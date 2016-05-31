@@ -33,5 +33,5 @@ class CalculatorPlugin(calculator: Calculator, parser: ExpressionParser) extends
 
   def process: String => BigDecimal = parser.parse _ andThen calculator.evaluate _
 
-  def onShutdown = Unit
+  def onShutdown() = () 
 }

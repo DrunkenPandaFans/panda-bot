@@ -18,7 +18,7 @@ class IrcClient(source: ConnectionSource, executor: ExecutorService) {
     channels.map(Join(_)).foreach(write(_))
 
     Observable[String](subscriber => {
-      executor.submit(new Runnable {
+      executor.execute(new Runnable {
         override def run(): Unit = {
           while (!subscriber.isUnsubscribed) {
             source.read.map { line =>
