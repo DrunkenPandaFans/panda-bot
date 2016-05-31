@@ -1,8 +1,9 @@
 package sk.drunkenpanda.bot.plugins.calc
 
-import sk.drunkenpanda.bot.plugins.Plugin
-import sk.drunkenpanda.bot.{Response, PrivateMessage, Message}
 import scala.util.matching.Regex
+
+import sk.drunkenpanda.bot.{ Message, PrivateMessage, Response }
+import sk.drunkenpanda.bot.plugins.Plugin
 
 class Calculator {
 
@@ -33,5 +34,5 @@ class CalculatorPlugin(calculator: Calculator, parser: ExpressionParser) extends
 
   def process: String => BigDecimal = parser.parse _ andThen calculator.evaluate _
 
-  def onShutdown = Unit
+  def onShutdown(): Unit = ()
 }

@@ -1,3 +1,6 @@
+import scalariform.formatter.preferences._
+import com.typesafe.sbt.SbtScalariform
+import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import scoverage.ScoverageKeys._
 
 lazy val commonSettings = Seq(
@@ -37,20 +40,27 @@ lazy val scoverageSettings = Seq(
   coverageHighlighting := scalaBinaryVersion.value != "2.10"
 )
 
+lazy val scalariformSettings = SbtScalariform.scalariformSettings ++ Seq(
+  ScalariformKeys.preferences := ScalariformKeys.preferences.value
+    .setPreference(DoubleIndentClassDeclaration, true)
+)
+
+lazy val pandaBotSettings = commonSettings ++ scalariformSettings
+
 lazy val pandaBot = project.in(file("."))
   .settings(moduleName := "PandaBot")
-  .settings(commonSettings: _*)
+  .settings(pandaBotSettings: _*)
   .settings(scoverageSettings: _*)
   .aggregate(core, examples)
   .dependsOn(core, examples)
 
 lazy val core = project.in(file("core"))
   .settings(moduleName := "core")
-  .settings(commonSettings: _*)
+  .settings(pandaBotSettings: _*)
   .settings(scoverageSettings: _*)
 
 lazy val examples = project.in(file("examples"))
   .settings(moduleName := "examples")
-  .settings(commonSettings: _*)
+  .settings(pandaBotSettings: _*)
   .dependsOn(core)
   .enablePlugins(JavaAppPackaging)

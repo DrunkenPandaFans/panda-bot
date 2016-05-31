@@ -1,12 +1,11 @@
 package sk.drunkenpanda.bot.io
 
-import java.util.concurrent.{Executors, ExecutorService, Executor}
-
-import rx.lang.scala.Observable
-import rx.lang.scala.schedulers.IOScheduler
-import sk.drunkenpanda.bot.{Join, Message}
+import java.util.concurrent.{ Executors, ExecutorService }
 
 import scala.util.Try
+
+import rx.lang.scala.Observable
+import sk.drunkenpanda.bot.{ Join, Message }
 
 trait IrcClient {
   def source: ConnectionSource
@@ -22,15 +21,16 @@ trait IrcClient {
     channels.map(Join(_)).foreach(write(_))
 
     Observable[String](subscriber => {
-      executor.submit(new Runnable {
+      executor.execute(new Runnable {
         override def run(): Unit = {
           while (!subscriber.isUnsubscribed) {
             source.read.map { line =>
               subscriber.onNext(line)
-            } recover { case e =>
-              if (!subscriber.isUnsubscribed) {
-                subscriber.onError(e)
-              }
+            } recover {
+              case e =>
+                if (!subscriber.isUnsubscribed) {
+                  subscriber.onError(e)
+                }
             }
           }
 
