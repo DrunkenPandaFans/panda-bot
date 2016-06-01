@@ -15,5 +15,5 @@ abstract class AbstractPluginModule extends PluginModule {
   def process(message: Message): Set[Message] =
     plugins flatMap (_.respond(message))
 
-  def shutdown() = plugins.foreach(_.onShutdown)
+  def shutdown(): Unit = plugins.foreach(_.onShutdown)
 }

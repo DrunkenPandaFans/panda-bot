@@ -22,21 +22,21 @@ object Message {
 
   lazy val noticePattern = ".*NOTICE :(.+)".r
 
-  def parse(message: String) = message match {
+  def parse(message: String): Message = message match {
     case privateMessagePattern(from, text) => new PrivateMessage(from, text)
     case pingPattern(hash) => Ping(hash)
     case noticePattern(note) => new Notice(note)
     case _ => Unknown
   }
 
-  def print(message: Message) = message match {
+  def print(message: Message): String = message match {
     case Response(to, text) => s"PRIVMSG $to :$text"
     case Pong(hash) => s"PONG :$hash"
-  	case Notice(note) => s"NOTICE :$note"
+    case Notice(note) => s"NOTICE :$note"
     case Join(channel) => s"JOIN $channel"
     case Leave(channel) => s"PART $channel"
     case User(username, realName)  => s"USER $username 0 * :$realName"
     case Nick(nickname) => s"NICK $nickname"
-  	case _ => ""
+    case _ => ""
   }
 }

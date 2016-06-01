@@ -1,8 +1,9 @@
 package sk.drunkenpanda.bot.plugins.calc
 
-import org.parboiled.scala._
+import scala.util.{Failure, Success, Try}
+
 import org.parboiled.errors.{ErrorUtils, ParsingException}
-import scala.util.{Try, Success, Failure}
+import org.parboiled.scala._
 
 class ExpressionParser extends Parser {
 

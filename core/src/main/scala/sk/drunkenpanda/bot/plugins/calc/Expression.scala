@@ -9,6 +9,6 @@ object Number {
 }
 
 case class UnaryOperator(value: String, exp: Expression) extends Expression
-case class BinaryOperator(op: String, leftExp: Expression, rightExp: Expression) 
+case class BinaryOperator(op: String, leftExp: Expression, rightExp: Expression)
   extends Expression
 

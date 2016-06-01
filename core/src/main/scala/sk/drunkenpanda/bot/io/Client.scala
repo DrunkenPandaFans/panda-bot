@@ -2,10 +2,10 @@ package sk.drunkenpanda.bot.io
 
 import java.util.concurrent.{Executors, ExecutorService}
 
+import scala.util.Try
+
 import rx.lang.scala.Observable
 import sk.drunkenpanda.bot.{Join, Message}
-
-import scala.util.Try
 
 class IrcClient(source: ConnectionSource, executor: ExecutorService) {
 

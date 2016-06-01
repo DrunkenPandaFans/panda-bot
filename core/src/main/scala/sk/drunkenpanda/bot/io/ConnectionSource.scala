@@ -26,23 +26,25 @@ class SocketConnectionSource(socket: => Socket) extends ConnectionSource {
       isr <- Try(new InputStreamReader(socket.getInputStream))
     } yield new BufferedReader(isr)
 
-  def write(value: String) = for {
+  def write(value: String): Try[Unit] = for {
     pw <- printWriter
   } yield {
     pw.write(value + "\n")
     pw.flush()
   }
 
-  def read = for {
+  def read: Try[String] = for {
     br <- bufferedReader
   } yield br.readLine
 
-  def shutdown = Try(socket.close())
+  def shutdown: Try[Unit] = Try(socket.close())
 
 }
 
 object SocketConnectionSource {
-  def apply(server: String, port: Int) = new SocketConnectionSource(new Socket(server, port))
+  def apply(server: String, port: Int): SocketConnectionSource =
+    new SocketConnectionSource(new Socket(server, port))
 
-  def apply(socket: => Socket) = new SocketConnectionSource(socket)
+  def apply(socket: => Socket): SocketConnectionSource =
+    new SocketConnectionSource(socket)
 }
