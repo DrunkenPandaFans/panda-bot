@@ -20,7 +20,8 @@ class Bot(ircClient: IrcClient, pluginModule: PluginModule) {
         err => {
           println("Error: " + err.getMessage)
         },
-        () => stop)
+        () => stop
+      )
   }
 
   def stop(): Unit = {

@@ -1,11 +1,11 @@
 package sk.drunkenpanda.bot.io
 
-import java.util.concurrent.{Executors, ExecutorService}
+import java.util.concurrent.{ Executors, ExecutorService }
 
 import scala.util.Try
 
 import rx.lang.scala.Observable
-import sk.drunkenpanda.bot.{Join, Message}
+import sk.drunkenpanda.bot.{ Join, Message }
 
 class IrcClient(source: ConnectionSource, executor: ExecutorService) {
 
@@ -23,10 +23,11 @@ class IrcClient(source: ConnectionSource, executor: ExecutorService) {
           while (!subscriber.isUnsubscribed) {
             source.read.map { line =>
               subscriber.onNext(line)
-            } recover { case e =>
-              if (!subscriber.isUnsubscribed) {
-                subscriber.onError(e)
-              }
+            } recover {
+              case e =>
+                if (!subscriber.isUnsubscribed) {
+                  subscriber.onError(e)
+                }
             }
           }
 

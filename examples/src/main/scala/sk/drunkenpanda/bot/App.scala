@@ -4,7 +4,7 @@ import sk.drunkenpanda.bot.io.IrcClient
 import sk.drunkenpanda.bot.plugins.AbstractPluginModule
 import sk.drunkenpanda.bot.plugins.EchoPlugin
 import sk.drunkenpanda.bot.plugins.PongPlugin
-import sk.drunkenpanda.bot.plugins.calc.{Calculator, ExpressionParser, CalculatorPlugin}
+import sk.drunkenpanda.bot.plugins.calc.{ Calculator, ExpressionParser, CalculatorPlugin }
 
 object BotApp extends scala.App {
 
@@ -27,5 +27,4 @@ object BotApp extends scala.App {
       new CalculatorPlugin(new Calculator, new ExpressionParser))
   }
 }
-
 

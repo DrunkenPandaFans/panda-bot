@@ -1,11 +1,11 @@
 package sk.drunkenpanda.bot.io
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.io.{ ByteArrayInputStream, ByteArrayOutputStream }
 import java.net.Socket
 
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.scalatest.{ FlatSpec, ShouldMatchers }
 
 class SocketConnectionSourceSpec extends FlatSpec with ShouldMatchers with MockitoSugar {
 
@@ -23,7 +23,7 @@ class SocketConnectionSourceSpec extends FlatSpec with ShouldMatchers with Mocki
 
     val msg = socketSource.read
 
-    msg.recover{case t => fail(t)}.foreach(_ shouldBe "PONG")
+    msg.recover { case t => fail(t) }.foreach(_ shouldBe "PONG")
     outputStream.toString shouldBe "PING\n"
   }
 

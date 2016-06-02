@@ -1,8 +1,8 @@
 package sk.drunkenpanda.bot.plugins.calc
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
-import org.parboiled.errors.{ErrorUtils, ParsingException}
+import org.parboiled.errors.{ ErrorUtils, ParsingException }
 import org.parboiled.scala._
 
 class ExpressionParser extends Parser {
@@ -11,26 +11,27 @@ class ExpressionParser extends Parser {
 
   private def Input: Rule1[Expression] = Term ~ zeroOrMore(
     "+" ~ Term ~~> binaryOperator("+") _ |
-      "-" ~ Term ~~> binaryOperator("-") _)
+      "-" ~ Term ~~> binaryOperator("-") _
+  )
 
   private def Term = rule {
     Factor ~ zeroOrMore(
       "*" ~ Factor ~~> binaryOperator("*") _ |
-      "/" ~ Factor ~~> binaryOperator("/") _ |
-      "^" ~ Factor ~~> binaryOperator("^") _
+        "/" ~ Factor ~~> binaryOperator("/") _ |
+        "^" ~ Factor ~~> binaryOperator("^") _
     )
   }
 
-  private def NegativeFraction = rule {"-" ~ Fraction ~~> (a => UnaryOperator("-", a))}
+  private def NegativeFraction = rule { "-" ~ Fraction ~~> (a => UnaryOperator("-", a)) }
 
-  private def Factor = rule { Fraction | Parents | NegativeFraction}
+  private def Factor = rule { Fraction | Parents | NegativeFraction }
 
-  private def Parents = rule {"(" ~ Input ~ ")"}
+  private def Parents = rule { "(" ~ Input ~ ")" }
 
   private def Fraction = rule {
     group(oneOrMore("1" - "9") ~
       optional("." ~ oneOrMore(Digits))) ~>
-    ((value: String) => Number(value))
+      ((value: String) => Number(value))
   }
 
   private def Digits = rule { oneOrMore("0" - "9") }
@@ -44,7 +45,8 @@ class ExpressionParser extends Parser {
     parsingResult.result match {
       case Some(expr) => expr
       case None => throw new ParsingException(
-        ErrorUtils.printParseErrors(parsingResult))
+        ErrorUtils.printParseErrors(parsingResult)
+      )
     }
   }
 }

@@ -35,7 +35,7 @@ object Message {
     case Notice(note) => s"NOTICE :$note"
     case Join(channel) => s"JOIN $channel"
     case Leave(channel) => s"PART $channel"
-    case User(username, realName)  => s"USER $username 0 * :$realName"
+    case User(username, realName) => s"USER $username 0 * :$realName"
     case Nick(nickname) => s"NICK $nickname"
     case _ => ""
   }

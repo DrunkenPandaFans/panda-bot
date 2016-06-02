@@ -6,7 +6,6 @@ import sk.drunkenpanda.bot.Pong
 import sk.drunkenpanda.bot.PrivateMessage
 import sk.drunkenpanda.bot.Response
 
-
 trait Plugin {
   def respond(message: Message): Option[Message]
 
@@ -21,8 +20,8 @@ class EchoPlugin extends Plugin {
 
   override def respond(message: Message): Option[Message] = message match {
     case PrivateMessage(from, text) => for {
-        (msg, suffix) <- parseText(text)
-      } yield prepareResponse(from, msg, suffix)
+      (msg, suffix) <- parseText(text)
+    } yield prepareResponse(from, msg, suffix)
     case _ => None
   }
 

@@ -2,7 +2,7 @@ package sk.drunkenpanda.bot.plugins.calc
 
 import scala.util.matching.Regex
 
-import sk.drunkenpanda.bot.{Message, PrivateMessage, Response}
+import sk.drunkenpanda.bot.{ Message, PrivateMessage, Response }
 import sk.drunkenpanda.bot.plugins.Plugin
 
 class Calculator {

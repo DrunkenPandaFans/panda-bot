@@ -2,10 +2,10 @@ package sk.drunkenpanda.bot
 
 import java.util.concurrent.Executors
 
-import org.scalatest.{ShouldMatchers, FlatSpec}
-import sk.drunkenpanda.bot.io.{ConnectionSource, IrcClient}
+import org.scalatest.{ ShouldMatchers, FlatSpec }
+import sk.drunkenpanda.bot.io.{ ConnectionSource, IrcClient }
 
-import scala.util.{Success, Try}
+import scala.util.{ Success, Try }
 
 class BotSpecs extends FlatSpec with ShouldMatchers {
 
@@ -21,7 +21,6 @@ class BotSpecs extends FlatSpec with ShouldMatchers {
 
     def shutdown: Try[Unit] = Success(())
   }
-
 
   class MockIrcClient extends IrcClient(new MockConnectionSource(), Executors.newSingleThreadExecutor())
 
