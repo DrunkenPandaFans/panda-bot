@@ -28,10 +28,11 @@ lazy val repositories = Seq(
 )
 
 lazy val dependencies = Seq(
-  "io.reactivex"  %% "rxscala"         % "0.25.0",
-  "org.parboiled" %% "parboiled-scala" % "1.1.6",
-  "org.scalatest" %% "scalatest"       % "2.2.6" % "test",
-  "org.mockito"   %  "mockito-all"     % "1.9.5" % "test"
+  "io.reactivex"   %% "rxscala"         % "0.25.0",
+  "org.parboiled"  %% "parboiled-scala" % "1.1.6",
+  "org.scalatest"  %% "scalatest"       % "2.2.6"  % "test",
+  "org.scalacheck" %% "scalacheck"      % "1.12.5" % "test",
+  "org.mockito"    %  "mockito-all"     % "1.9.5"  % "test"
 )
 
 lazy val scoverageSettings = Seq(
