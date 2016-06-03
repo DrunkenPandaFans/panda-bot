@@ -19,6 +19,7 @@ project/plugins/project/
 # Ensime 
 .ensime
 .ensime_lucene/
+.ensime_cache/
 
 # Idea
 .idea/
