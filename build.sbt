@@ -29,6 +29,7 @@ lazy val repositories = Seq(
 
 lazy val dependencies = Seq(
   "io.reactivex"   %% "rxscala"         % "0.25.0",
+  "org.typelevel"  %% "cats-core"       % "0.6.0",
   "org.parboiled"  %% "parboiled-scala" % "1.1.6",
   "org.scalatest"  %% "scalatest"       % "2.2.6"  % "test",
   "org.scalacheck" %% "scalacheck"      % "1.12.5" % "test",
