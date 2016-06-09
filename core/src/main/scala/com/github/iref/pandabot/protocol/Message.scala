@@ -64,6 +64,31 @@ object Message {
     val PONG: Typ = "PONG"
     val MODE: Typ = "MODE"
   }
+
+  private def encodeServerMessage(msg: ServerMessage) = {
+    var out = msg.nick
+    msg.name.foreach { name => out = s"$out!$name" }
+    msg.host.foreach { host => out = s"$out@$host" }
+    out + encode(msg.message)
+  }
+
+  /**
+   * Encodes IRC messages to string.
+   *
+   * @param msg the irc protocol message
+   * @return irc message encoded in string
+   */
+  def encode(msg: Message): String = {
+    msg match {
+      case EmptyMessage(typ, params) => "%s %s".format(typ, params.mkString(" "))
+      case TailMessage(typ, params, tail) => "%s %s :%s".format(typ, params.mkString(" "), tail)
+      case msg: ServerMessage => encodeServerMessage(msg)
+    }
+  }
+
+  def decode(s: String): Option[Message] = {
+    
+  }
 }
 
 /**
@@ -73,6 +98,24 @@ abstract class EmptyMessage extends Message {
   RequireProtocolMessage(validate, this)
 
   override val tail: Option[String] = None
+}
+
+/**
+ * Helpers for working with empty messages.
+ */
+object EmptyMessage {
+  def unapply(emptyMessage: EmptyMessage): Option[(Typ, Seq[String])] = {
+    Some(emptyMessage.typ, emptyMessage.parameters)
+  }
+}
+
+/**
+ * Helper for working with empty messages
+ */
+object TailMessage {
+  def unapply(msg: Message): Option[(Typ, Seq[String], String)] = {
+    msg.tail.map(tail => (msg.typ, msg.parameters, tail))
+  }
 }
 
 /**
@@ -259,11 +302,10 @@ final case class Pong(daemons: NonEmptyList[String]) extends EmptyMessage {
 /**
  * A mode message. It allows both channels and users to have their mode changed.
  */
-sealed abstract class Mode(modeId: String) extends Message {
+sealed abstract class Mode(modeId: String) extends EmptyMessage {
   RequireProtocolMessage(validate, this)
 
   override val typ = Types.MODE
-  override def tail = None
   override def parameters = {
     val mode = "%s%s".format(unset.map(u => if (u) "+" else "-").getOrElse(""), modeId)
     List(user, mode)
