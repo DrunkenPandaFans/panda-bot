@@ -1,6 +1,6 @@
 package com.github.iref.pandabot.protocol
 
-case class UnknownMessage(typ: Message.Typ, params: List[String], tail: Option[String]) extends RuntimeException {
+case class UnknownMessage(typ: Message.Typ, params: Seq[String], tail: Option[String]) extends RuntimeException {
   override def toString: String = {
     val ps = params.mkString(" ")
     val t = tail.map(t => ":" + t).getOrElse("")

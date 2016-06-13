@@ -29,9 +29,9 @@ sealed trait Message {
 
   protected def validate(): Boolean = {
     val whitespaceParams = parameters
-      .filter(param => "\\s+".r.findFirstIn(param).isDefined)
+      .exists(param => "\\s+".r.findFirstIn(param).isDefined)
 
-    whitespaceParams.isEmpty && !tail.find(t => t.contains("\r\n")).isEmpty
+    !whitespaceParams && !tail.exists(t => t.contains("\r\n"))
   }
 
 }
@@ -65,30 +65,6 @@ object Message {
     val MODE: Typ = "MODE"
   }
 
-  private def encodeServerMessage(msg: ServerMessage) = {
-    var out = msg.nick
-    msg.name.foreach { name => out = s"$out!$name" }
-    msg.host.foreach { host => out = s"$out@$host" }
-    out + encode(msg.message)
-  }
-
-  /**
-   * Encodes IRC messages to string.
-   *
-   * @param msg the irc protocol message
-   * @return irc message encoded in string
-   */
-  def encode(msg: Message): String = {
-    msg match {
-      case EmptyMessage(typ, params) => "%s %s".format(typ, params.mkString(" "))
-      case TailMessage(typ, params, tail) => "%s %s :%s".format(typ, params.mkString(" "), tail)
-      case msg: ServerMessage => encodeServerMessage(msg)
-    }
-  }
-
-  def decode(s: String): Option[Message] = {
-    
-  }
 }
 
 /**
@@ -163,7 +139,7 @@ final case class User(username: String, host: String, serverName: String, realNa
  * If message is given, this will be sent instead of default message.
  */
 final case class Quit(message: Option[String] = None)
-  extends EmptyMessage {
+    extends EmptyMessage {
   override val typ = Types.QUIT
   override def parameters = message.toList
 }
@@ -182,7 +158,7 @@ final case class Oper(user: String, password: String) extends EmptyMessage {
  * Note, i-th password is password to i-th channel in channels list.
  */
 final case class Join(channels: NonEmptyList[String], passwords: Seq[String])
-  extends EmptyMessage {
+    extends EmptyMessage {
   override val typ = Types.JOIN
   override def parameters =
     List(channels.unwrap.mkString(","), passwords.mkString(","))
@@ -241,7 +217,7 @@ final case class Invite(nick: String, channel: String) extends EmptyMessage {
  * Note, only channel operator may kick users from channel.
  */
 final case class Kick(channel: String, user: String, comment: Option[String])
-  extends Message {
+    extends Message {
   override val typ = Types.KICK
   override def parameters = List(channel, user)
   override def tail: Option[String] = comment
@@ -362,7 +338,7 @@ final case class UserOperatorMode(unset: Option[Boolean], user: String) extends 
  * Channel operator mode. Gives/takes channel operator privileges to user.
  */
 final case class ChannelOperatorMode(unset: Option[Boolean], channel: String, nick: String)
-    extends ChannelMode("o", nick)
+  extends ChannelMode("o", nick)
 
 /**
  * Private mode. Sets channel as private.
@@ -399,22 +375,22 @@ final case class ChannelModeratedMode(unset: Option[Boolean], channel: String) e
  * User-limit mode. Limits number of users in channel.
  */
 final case class ChannelUserLimitMode(unset: Option[Boolean], channel: String, limit: Int)
-    extends ChannelMode("l", limit.toString)
+  extends ChannelMode("l", limit.toString)
 
 /**
  * Ban mask mode. Ban users from channel if their username or hostname matches mask.
  */
 final case class ChannelBanMaskMode(unset: Option[Boolean], channel: String, mask: String)
-    extends ChannelMode("b", mask)
+  extends ChannelMode("b", mask)
 
 /**
  * Voice mode. It gives/takes ability to speak in moderated channels.
  */
 final case class ChannelVoiceMode(unset: Option[Boolean], channel: String, nick: String)
-    extends ChannelMode("v", nick)
+  extends ChannelMode("v", nick)
 
 /**
  * Key mode. It sets channel password.
  */
 final case class ChannelKeyMode(unset: Option[Boolean], channel: String, key: String)
-    extends ChannelMode("k", key)
+  extends ChannelMode("k", key)
