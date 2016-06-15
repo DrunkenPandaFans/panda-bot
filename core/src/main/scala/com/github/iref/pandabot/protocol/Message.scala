@@ -81,7 +81,7 @@ abstract class EmptyMessage extends Message {
  */
 object EmptyMessage {
   def unapply(emptyMessage: EmptyMessage): Option[(Typ, Seq[String])] = {
-    Some(emptyMessage.typ, emptyMessage.parameters)
+    Some((emptyMessage.typ, emptyMessage.parameters))
   }
 }
 

@@ -6,7 +6,7 @@ class MessageSpec extends PandaBotSpec("Message") {
 
   it should "decode and encode to same message" in {
     forAll { (m: Message) =>
-      SimpleStringDecoder(Encoder(m)) should be (Some(m))
+      SimpleStringDecoder(Encoder(m)) should be(Some(m))
     }
   }
 
