@@ -1,5 +1,7 @@
 package com.github.iref.pandabot.protocol
 
+import com.github.iref.pandabot.protocol.commands.ServerMessage
+
 object Encoder extends (Message => String) {
 
   private def encodeServerMessage(msg: ServerMessage) = {

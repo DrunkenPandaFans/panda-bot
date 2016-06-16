@@ -2,6 +2,7 @@ package com.github.iref.pandabot.protocol
 
 import cats.data.NonEmptyList
 import com.github.iref.pandabot.protocol.Message.{ Typ, Types }
+import com.github.iref.pandabot.protocol.commands._
 
 class Decoder(decoders: Map[Typ, PartialFunction[List[String], Message]]) extends (String => Option[Message]) {
 

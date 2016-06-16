@@ -1,7 +1,8 @@
 package com.github.iref.pandabot
 
 import cats.syntax.all._
-import com.github.iref.pandabot.protocol._
+import com.github.iref.pandabot.protocol.Message
+import com.github.iref.pandabot.protocol.commands._
 import org.scalacheck.Gen
 
 trait Generators {
