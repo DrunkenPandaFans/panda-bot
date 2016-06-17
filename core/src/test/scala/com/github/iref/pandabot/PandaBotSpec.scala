@@ -24,11 +24,11 @@ abstract class PandaBotSpec(component: String) extends FlatSpec
     with Matchers
     with GeneratorDrivenPropertyChecks
     with PropertyCheckerSettings
-    with MessageGenerators {
+    with Generators {
 
   implicit override val generatorDrivenConfig = checkConfiguration
 
-  implicit val messageArbitrary: Arbitrary[Message] = Arbitrary(genMessage)
+  implicit val messageArbitrary: Arbitrary[Message] = Arbitrary(message)
 
   behavior of component
 

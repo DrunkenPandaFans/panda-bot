@@ -1,5 +1,6 @@
 package com.github.iref.pandabot
 
+import cats.data.NonEmptyList
 import cats.syntax.all._
 import com.github.iref.pandabot.protocol.Message
 import com.github.iref.pandabot.protocol.commands._
@@ -11,7 +12,7 @@ trait Generators {
   val genNonEmptyAlphaNumStr: Gen[String] =
     for {
       n <- posNum[Int]
-      name <- listOf(n, alphaNumChar).toString
+      name <- listOfN(n, alphaNumChar).toString
     } yield name
 
   val genChannel: Gen[String] =
@@ -20,23 +21,29 @@ trait Generators {
       mask <- oneOf("#", "&")
     } yield mask + name
 
-  val genNick: Gen[Message] = genNonEmptyAlphaNumStr.map(Nick.apply)
+  def nonEmptyList[A](g: Gen[A]): Gen[NonEmptyList[A]] =
+    for {
+      n <- posNum[Int]
+      channels <- listOfN(n, g)
+    } yield channels.toNel.get
 
-  val genPassword: Gen[Message] = genNonEmptyAlphaNumStr.map(Pass.apply)
+  val nick: Gen[Message] = genNonEmptyAlphaNumStr.map(Nick.apply)
 
-  val genUser: Gen[Message] = for {
+  val pass: Gen[Message] = genNonEmptyAlphaNumStr.map(Pass.apply)
+
+  val user: Gen[Message] = for {
     username <- genNonEmptyAlphaNumStr
     hostname <- alphaStr if !hostname.isEmpty
     serverName <- alphaStr if !serverName.isEmpty
     realName <- genNonEmptyAlphaNumStr
   } yield User(username, hostname, serverName, realName)
 
-  val genOper: Gen[Message] = for {
+  val oper: Gen[Message] = for {
     nickname <- genNonEmptyAlphaNumStr
     password <- genNonEmptyAlphaNumStr
   } yield Oper(nickname, password)
 
-  val genQuit: Gen[Message] = for {
+  val quit: Gen[Message] = for {
     msg <- option(alphaStr)
   } yield Quit(msg)
 
@@ -56,15 +63,9 @@ trait Generators {
     topic <- option(genNonEmptyAlphaNumStr)
   } yield Topic(channel, topic)
 
-  val names: Gen[Message] = for {
-    n <- posNum[Int]
-    channels <- listOfN(n, genChannel)
-  } yield Names(channels.toNel.get)
+  val names: Gen[Message] = nonEmptyList(genChannel).map(Names.apply)
 
-  val channelLists: Gen[Message] = for {
-    n <- posNum[Int]
-    channels <- listOfN(n, genChannel)
-  } yield ChannelList(channels.toNel.get)
+  val channelLists: Gen[Message] = nonEmptyList(genChannel).map(ChannelList.apply)
 
   val invite: Gen[Message] = for {
     nick <- genNonEmptyAlphaNumStr
@@ -79,27 +80,72 @@ trait Generators {
 
   val privMsg: Gen[Message] = for {
     n <- posNum[Int]
-    receivers <- listOfN(n, oneOf(genChannel, genNonEmptyAlphaNumStr))
+    receivers <- nonEmptyList(genNonEmptyAlphaNumStr)
     text <- genNonEmptyAlphaNumStr
-  } yield PrivMsg(receivers.toNel.get, text)
+  } yield PrivMsg(receivers, text)
 
   val notice: Gen[Message] = for {
     nick <- genNonEmptyAlphaNumStr
     text <- genNonEmptyAlphaNumStr
   } yield Notice(nick, text)
 
-  val ping: Gen[Message] = for {
-    n <- posNum[Int]
-    servers <- listOfN(n, genNonEmptyAlphaNumStr)
-  } yield Ping(servers.toNel.get)
+  val ping: Gen[Message] =
+    nonEmptyList(genNonEmptyAlphaNumStr).map(Ping.apply)
 
-  val pong: Gen[Message] = for {
-    n <- posNum[Int]
-    daemons <- listOfN(n, genNonEmptyAlphaNumStr)
-  } yield Pong(daemons.toNel.get)
+  val pong: Gen[Message] =
+    nonEmptyList(genNonEmptyAlphaNumStr).map(Pong.apply)
 
   val who: Gen[Message] = for {
     name <- option(genNonEmptyAlphaNumStr)
     op <- oneOf(false, true)
   } yield Who(name, op)
+
+  val userMode: Gen[Mode] =
+    for {
+      m <- oneOf(UserOperatorMode, UserInvisibleMode, UserRetrieveNoticesMode, UserRetrieveWallopsMode)
+      u <- genNonEmptyAlphaNumStr
+      unset <- option(oneOf(true, false))
+    } yield m.apply(unset, u)
+
+  val channelMode: Gen[Mode] =
+    for {
+      m <- oneOf(ChannelModeratedMode, ChannelNoOutsideMessageMode,
+        ChannelTopicOpOnlyMode, ChannelInviteOnlyMode, ChannelPrivateMode, ChannelSecretMode)
+      ch <- genChannel
+      unset <- option(oneOf(true, false))
+    } yield m.apply(unset, ch)
+
+  val channelUserMode: Gen[Mode] =
+    for {
+      m <- oneOf(ChannelOperatorMode, ChannelVoiceMode)
+      ch <- genChannel
+      nick <- genNonEmptyAlphaNumStr
+      unset <- option(oneOf(true, false))
+    } yield m.apply(unset, ch, nick)
+
+  val channelKeyMode: Gen[Mode] =
+    for {
+      ch <- genChannel
+      key <- genNonEmptyAlphaNumStr
+      unset <- option(oneOf(true, false))
+    } yield ChannelKeyMode(unset, ch, key)
+
+  val userLimitMode: Gen[Mode] =
+    for {
+      ch <- genChannel
+      limit <- posNum[Int]
+      unset <- option(oneOf(true, false))
+    } yield ChannelUserLimitMode(unset, ch, limit)
+
+  val banMaskMode: Gen[Mode] =
+    for {
+      ch <- genChannel
+      mask <- genNonEmptyAlphaNumStr
+      unset <- option(oneOf(true, false))
+    } yield ChannelBanMaskMode(unset, ch, mask)
+
+  val mode: Gen[Mode] = oneOf(userMode, channelMode, channelUserMode, channelKeyMode, userLimitMode, banMaskMode)
+
+  val message: Gen[Message] = oneOf(pass, nick, user, quit, oper, join, part, topic, names, channelLists,
+    kick, invite, privMsg, notice, ping, pong, who, mode)
 }
