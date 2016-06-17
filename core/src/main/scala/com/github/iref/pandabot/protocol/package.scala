@@ -10,4 +10,9 @@ package object protocol {
    */
   type DecodingResult[+A] = Xor[DecodingFailure, A]
 
+  /**
+   * Result of creating parameter A or failure if parameter couldn't been created.
+   */
+  type ParameterResult[+A] = Xor[InvalidParameterFailure, A]
+
 }

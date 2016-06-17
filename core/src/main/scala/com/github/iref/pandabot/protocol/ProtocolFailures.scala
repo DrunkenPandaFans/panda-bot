@@ -37,13 +37,18 @@ final case class DecodingFailure(reason: String = "", detail: String = "") exten
 object DecodingResult {
 
   /**
-   *
+   * Lifts value to DecodingResult.
    */
   def success[A](a: => A): DecodingResult[A] = Xor.Right(a)
 
   /**
-   *
+   * Lifts decoding failures to DecodingResult.
    */
   def fail[A](failure: DecodingFailure): DecodingResult[A] = Xor.Left(failure)
 }
+
+/**
+ * Indicates error in a [[Param]].
+ */
+final case class InvalidParameterFailure(val message: String = "") extends ProtocolFailure
 
