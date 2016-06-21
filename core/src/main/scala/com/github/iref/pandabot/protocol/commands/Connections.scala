@@ -1,6 +1,6 @@
 package com.github.iref.pandabot.protocol.commands
 
-import com.github.iref.pandabot.protocol.{ EmptyMessage, Message, RequireProtocolMessage }
+import com.github.iref.pandabot.protocol.{ EmptyMessage, Message }
 import com.github.iref.pandabot.protocol.Message.Types
 
 /**
@@ -36,8 +36,6 @@ final case class User(username: String, host: String, serverName: String, realNa
  */
 final case class ServerMessage(nick: String, name: Option[String], host: Option[String], message: Message)
     extends Message {
-  RequireProtocolMessage(validate, this)
-
   override val typ = message.typ
   override val parameters = message.parameters
   override val tail = message.tail

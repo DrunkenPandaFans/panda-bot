@@ -69,8 +69,6 @@ object Message {
  * A message without tail.
  */
 abstract class EmptyMessage extends Message {
-  RequireProtocolMessage(validate, this)
-
   override val tail: Option[String] = None
 }
 
