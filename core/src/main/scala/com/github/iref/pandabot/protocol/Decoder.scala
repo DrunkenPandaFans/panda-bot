@@ -117,6 +117,9 @@ object Decoder {
         case Nil => Who(None, false)
         case name :: Nil => Who(Option(name), false)
         case name :: "o" :: Nil => Who(Option(name), true)
+      }),
+      (Types.MODE -> {
+        case Mode(mode) => mode
       })
     )
 }

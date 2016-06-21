@@ -1,6 +1,6 @@
 package com.github.iref.pandabot.protocol.commands
 
-import com.github.iref.pandabot.protocol.{ Message, RequireProtocolMessage }
+import com.github.iref.pandabot.protocol.Message
 import com.github.iref.pandabot.protocol.Message.Types
 
 /**
@@ -37,13 +37,46 @@ sealed trait Mode extends Message {
   def suffix: String
 }
 
+object Mode {
+
+  private def isChannel(subject: String): Boolean = {
+    subject.startsWith("#") || subject.startsWith("&")
+  }
+
+  private def isSet(tokens: List[String]): Option[Boolean] = tokens match {
+    case _ :: f :: _ if f.startsWith("+") => Option(true)
+    case _ :: f :: _ if f.startsWith("-") => Option(false)
+    case _ => None
+  }
+
+  def unapply(tokens: List[String]): Option[Mode] = {
+    val unset = isSet(tokens)
+    PartialFunction.condOpt(tokens) {
+      case ch :: ("o" | "+o" | "o") :: nick :: Nil if isChannel(ch) => ChannelOperatorMode(unset, ch, nick)
+      case ch :: ("p" | "+p" | "-p") :: Nil if isChannel(ch) => ChannelPrivateMode(unset, ch)
+      case ch :: ("s" | "+s" | "-s") :: Nil if isChannel(ch) => ChannelSecretMode(unset, ch)
+      case ch :: ("i" | "+i" | "-i") :: Nil if isChannel(ch) => ChannelInviteOnlyMode(unset, ch)
+      case ch :: ("t" | "+t" | "-t") :: Nil if isChannel(ch) => ChannelTopicOpOnlyMode(unset, ch)
+      case ch :: ("n" | "+n" | "-n") :: Nil if isChannel(ch) => ChannelNoOutsideMessageMode(unset, ch)
+      case ch :: ("m" | "+m" | "-m") :: Nil if isChannel(ch) => ChannelModeratedMode(unset, ch)
+      case ch :: ("l" | "+l" | "-l") :: limit :: Nil if isChannel(ch) => ChannelUserLimitMode(unset, ch, limit.toInt)
+      case ch :: ("b" | "+b" | "-b") :: mask :: Nil if isChannel(ch) => ChannelBanMaskMode(unset, ch, mask)
+      case ch :: ("v" | "+v" | "-v") :: nick :: Nil if isChannel(ch) => ChannelVoiceMode(unset, ch, nick)
+      case ch :: ("k" | "+k" | "-k") :: key :: Nil if isChannel(ch) => ChannelKeyMode(unset, ch, key)
+
+      case u :: ("i" | "+i" | "-i") :: Nil => UserInvisibleMode(unset, u)
+      case u :: ("s" | "+s" | "-s") :: Nil => UserRetrieveNoticesMode(unset, u)
+      case u :: ("w" | "+w" | "-w") :: Nil => UserRetrieveWallopsMode(unset, u)
+      case u :: ("o" | "+o" | "-o") :: Nil => UserOperatorMode(unset, u)
+    }
+  }
+}
+
 /**
  * A user mode message. Implementations change either how user is seen by
  * other users or what extra messages are sent to user.
  */
 sealed abstract class UserMode(val modeId: String) extends Mode {
-  RequireProtocolMessage(validate, this)
-
   override val subject = user
 
   override val typ = Types.MODE
@@ -60,8 +93,6 @@ sealed abstract class UserMode(val modeId: String) extends Mode {
  * Channel mode message. It allows channel to have its mode changed.
  */
 sealed abstract class ChannelMode(val modeId: String, val suffix: String = "") extends Mode {
-  RequireProtocolMessage(validate, this)
-
   override val subject = channel
 
   override val parameters = super.parameters :+ suffix
