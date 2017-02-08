@@ -8,14 +8,14 @@ import scala.util.{ Failure, Success }
 
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ BeforeAndAfterEach, FlatSpec, ShouldMatchers }
+import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{ BeforeAndAfterEach, FlatSpec, Matchers }
 import sk.drunkenpanda.bot.{ Join, Message, Response }
 
 /**
  * @author Jan Ferko
  */
-class IrcClientSpec extends FlatSpec with ShouldMatchers with MockitoSugar with BeforeAndAfterEach {
+class IrcClientSpec extends FlatSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   val mockConnectionSource = mock[ConnectionSource]
 

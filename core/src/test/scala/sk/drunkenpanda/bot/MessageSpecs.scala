@@ -1,8 +1,8 @@
 package sk.drunkenpanda.bot
 
-import org.scalatest.{ ShouldMatchers, FlatSpec }
+import org.scalatest.{ Matchers, FlatSpec }
 
-class MessageSpecs extends FlatSpec with ShouldMatchers {
+class MessageSpecs extends FlatSpec with Matchers {
 
   behavior of "Message"
 
