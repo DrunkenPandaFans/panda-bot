@@ -2,12 +2,12 @@ package sk.drunkenpanda.bot
 
 import java.util.concurrent.Executors
 
-import org.scalatest.{ ShouldMatchers, FlatSpec }
+import org.scalatest.{ Matchers, FlatSpec }
 import sk.drunkenpanda.bot.io.{ ConnectionSource, IrcClient }
 
 import scala.util.{ Success, Try }
 
-class BotSpecs extends FlatSpec with ShouldMatchers {
+class BotSpecs extends FlatSpec with Matchers {
 
   class MockConnectionSource extends ConnectionSource {
     val buffer = collection.mutable.Buffer[String]()

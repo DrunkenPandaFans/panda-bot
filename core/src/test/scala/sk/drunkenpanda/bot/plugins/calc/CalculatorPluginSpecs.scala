@@ -1,6 +1,6 @@
 package sk.drunkenpanda.bot.plugins.calc
 
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{ Matchers, FlatSpec }
 import org.mockito.Mockito._
 import sk.drunkenpanda.bot.Notice

@@ -4,10 +4,10 @@ import java.io.{ ByteArrayOutputStream, ByteArrayInputStream }
 import java.net.Socket
 
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ BeforeAndAfterEach, ShouldMatchers, FlatSpec }
+import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{ BeforeAndAfterEach, Matchers, FlatSpec }
 
-class SocketConnectionSourceSpec extends FlatSpec with ShouldMatchers with MockitoSugar with BeforeAndAfterEach {
+class SocketConnectionSourceSpec extends FlatSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   val socket = mock[Socket]
   val socketSource = SocketConnectionSource(socket)
