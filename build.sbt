@@ -2,8 +2,8 @@ import scoverage.ScoverageKeys._
 
 
 lazy val buildSettings = Seq(
-  organization := "com.github.iref",
-  version := "1.0",
+  organization := "me.janferko",
+  version := "0.0.1",
   scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.11.8", "2.12.1")
 )
@@ -29,17 +29,18 @@ lazy val repositories = Seq(
 )
 
 lazy val dependencies = Seq(
-  "io.reactivex"  %% "rxscala"         % "0.26.5",
-  "org.parboiled" %% "parboiled-scala" % "1.1.6",
-  "org.scalatest" %% "scalatest"       % "3.0.1" % "test",
-  "org.mockito"   %  "mockito-all"     % "1.9.5" % "test"
+  "io.reactivex"   %% "rxscala"         % "0.26.5",
+  "org.parboiled"  %% "parboiled-scala" % "1.1.6",
+  "org.scalatest"  %% "scalatest"       % "3.0.1"  % "test",
+  "org.scalacheck" %% "scalacheck"      % "1.13.4" % "test",
+  "org.mockito"     %  "mockito-all"    % "1.9.5"  % "test"
 )
 
 lazy val commonSettings = Seq(
   resolvers ++= repositories,
   libraryDependencies ++= dependencies,
   scapegoatVersion := "1.3.0",
-  scalacOptions ++= compilerOptions, 
+  scalacOptions ++= compilerOptions,
   scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-imports")),
   scalacOptions in (Compile, console) += "-Yrepl-class-based"
 )
