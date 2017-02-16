@@ -18,13 +18,11 @@ trait PropertyCheckerSettings extends Configuration {
  * Opinionated specification trait stack to improve consistency and
  * provide boilerplate in tests.
  */
-abstract class PandaBotSpec(component: String) extends FlatSpec
+abstract class PandaBotSpec extends FlatSpec
     with Matchers
     with GeneratorDrivenPropertyChecks
     with PropertyCheckerSettings {
 
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration = checkConfiguration
-
-  behavior of component
 
 }
